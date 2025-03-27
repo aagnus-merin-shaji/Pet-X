@@ -112,7 +112,7 @@ const AddAnimal = () => {
       temperament: "",
       healthstatus: "",
       vaccinated: true,
-      adoptionfee: "",
+      adoptionFee: "",
       description: "",
       photos: [],
     },
@@ -240,10 +240,10 @@ const AddAnimal = () => {
             <Label>Adoption Fee</Label>
             <Input
               type="number"
-              name="adoptionfee"
+              name="adoptionFee"
               placeholder="Enter adoption fee (e.g., $50)"
               onChange={formik.handleChange}
-              value={formik.values.adoptionfee}
+              value={formik.values.adoptionFee}
             />
           </FormGroup>
         </div>

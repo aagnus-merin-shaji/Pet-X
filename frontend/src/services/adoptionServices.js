@@ -1,11 +1,12 @@
 import axios from "axios";
 import { BASE_URL } from "../utils/url";
 import { getToken } from "../utils/storageHandler";
+const token = getToken()
 
 export const adoptionaddAPI= async(data)=>{
     const response = await axios.post(`${BASE_URL}/adoption/add`,data, {
         headers:{
-            Authorization: `Bearer ${getToken}`
+            Authorization: `Bearer ${token}`
         }    // Make sure credentials (cookies) are sent
     });
     return response.data

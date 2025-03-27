@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useGlobalContext } from "../context/context";
 import { useNavigate } from "react-router-dom";
+import { logoutAction } from "../redux/userSlice";
 
 const Logout = () => {
   const { logoutUser } = useGlobalContext(); // Access logout function from context
@@ -9,6 +10,8 @@ const Logout = () => {
 
   const handleLogout = () => {
     logoutUser(); // Call the logout function
+    logoutAction();
+    localStorage.clear()
     navigate("/login"); // Redirect to the login page
   };
 

@@ -6,6 +6,16 @@ const UserSchema = new mongoose.Schema({
     unique:true,
         minLength:[5,"Minimum 5 characters required"],
   },
+  bio: {
+    type: String,
+},
+wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Animal' }] ,
+address: { type: String,},
+livelihood: { type: String, },
+adopterPreferences: { type: String, },
+lifestyleInfo: { type: String, },
+experienceWithPets: { type: String, },
+desiredPetCharacteristics: { type: String, },
   email: { 
     type: String, 
     required: true, 

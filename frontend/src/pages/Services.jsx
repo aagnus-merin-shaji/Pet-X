@@ -27,7 +27,7 @@ const Services = () => {
             style={styles.contactButton}
             onClick={() => handleContactClick("Pet Health Monitoring")}
           >
-            Contact Us
+            Contact 
           </button>
         </div>
         <div style={styles.serviceCard}>
@@ -40,7 +40,7 @@ const Services = () => {
             style={styles.contactButton}
             onClick={() => handleContactClick("Pet Sitting & Walking")}
           >
-            Contact Us
+            Contact 
           </button>
         </div>
         <div style={styles.serviceCard}>
@@ -53,7 +53,7 @@ const Services = () => {
             style={styles.contactButton}
             onClick={() => handleContactClick("Emergency Vet Assistance")}
           >
-            Contact Us
+            Contact 
           </button>
         </div>
         <div style={styles.serviceCard}>
@@ -65,7 +65,7 @@ const Services = () => {
             style={styles.contactButton}
             onClick={() => handleContactClick("Pet Training")}
           >
-            Contact Us
+            Contact 
           </button>
         </div>
         <div style={styles.serviceCard}>
@@ -78,7 +78,7 @@ const Services = () => {
             style={styles.contactButton}
             onClick={() => handleContactClick("Pet Insurance")}
           >
-            Contact Us
+            Contact 
           </button>
         </div>
       </div>

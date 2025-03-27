@@ -46,7 +46,7 @@ const NotificationTab = ({ notifications }) => (
 const navLinks = [
   { name: "home", path: "/shelterhome" },
   { name: "addanimal", path: "/shelter/add-animal" },
-  { name: "animals", path: "/shelter/animals" },
+  { name: "animalsView", path: "/shelter/animals" },
   { name: "adoptions", path: "/shelter/adoptions" },
   { name: "reports", path: "/shelter/reports" },
 ];

@@ -1,17 +1,14 @@
 import axios from "axios";
 import { BASE_URL } from "../utils/url";
-import { getUserData } from "../utils/storageHandler";
+import { getToken } from "../utils/storageHandler";
 
-export const profilesaveAPI= async(data)=>{
-    const response = await axios.put(`${BASE_URL}/profile/save`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
-    });
-    return response.data
-}
+const token = getToken()
 
-export const profileaddAPI= async()=>{
-    const response = await axios.put(`${BASE_URL}/profile/add`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+export const profilesaveAPI= async()=>{
+    const response = await axios.get(`${BASE_URL}/users/view`, {
+        headers:{
+            Authorization: `Bearer ${token}`
+        }  // Make sure credentials (cookies) are sent
     });
     return response.data
 }
@@ -23,16 +20,20 @@ export const profileremoveAPI= async()=>{
     return response.data
 }
 
-export const profileeditAPI= async()=>{
-    const response = await axios.get(`${BASE_URL}/profile/edit`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+export const profileeditAPI= async(data)=>{
+    const response = await axios.put(`${BASE_URL}/users/edit`,data, {
+        headers:{
+            Authorization: `Bearer ${token}`
+        }   // Make sure credentials (cookies) are sent
     });
     return response.data
 }
 
 export const profilepasswordAPI= async()=>{
-    const response = await axios.put(`${BASE_URL}/profile/password`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+    const response = await axios.put(`${BASE_URL}/users/changepass`,data, {
+        headers:{
+            Authorization: `Bearer ${token}`
+        }   // Make sure credentials (cookies) are sent
     });
     return response.data
 }

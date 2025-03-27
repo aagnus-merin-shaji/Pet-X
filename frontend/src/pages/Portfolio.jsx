@@ -1,7 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { animalsviewallAPI } from '../services/animalServices';
+import { adoptionaddAPI } from '../services/adoptionServices';
+import { useSelector } from 'react-redux';
 
 const Portfolio = () => {
     const [expandedId, setExpandedId] = useState(null);
@@ -11,14 +13,23 @@ const Portfolio = () => {
         queryFn: animalsviewallAPI,
         queryKey: ['animal-view']
     });
-
     
+    const { mutateAsync, isPending, } = useMutation({
+        mutationFn: adoptionaddAPI, // Ensure this function is defined in userServices.js
+        mutationKey: ["add-request"],
+      });
+
+      const userId = useSelector((state) => state.user.id);
+      console.log(userId);
+
     const toggleReadMore = (id) => {
         setExpandedId(expandedId === id ? null : id);
     };
 
-    const handleAdoptClick = (pet) => {
-        navigate('/adoption-form', { state: { pet } });
+    const handleAdoptClick = async(pet) => {
+       await mutateAsync({userId: userId, 
+        petId: pet._id})
+        navigate('/adopter-adoptions', { state: { pet } });
     };
 
     const handleMedicalViewClick = (pet) => {
@@ -59,11 +70,14 @@ const Portfolio = () => {
                             {expandedId === pet._id ? "Read Less" : "Read More"}
                         </button>
                         <button
-                            style={styles.adoptButton}
-                            onClick={() => handleAdoptClick(pet)}
-                        >
-                            Adopt
-                        </button>
+    style={styles.adoptButton}
+    onClick={() => {
+        handleAdoptClick(pet); // Your existing adoption function
+        alert("Request sent!"); // Simple alert
+    }}
+>
+    Adopt
+</button>
                         <button
                             style={styles.medicalViewButton}
                             onClick={() => handleMedicalViewClick(pet)}

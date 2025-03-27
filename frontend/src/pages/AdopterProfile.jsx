@@ -1,44 +1,70 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { avatar } from "../assets/imagedata";
+import { useMutation, useQuery,  useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { profileeditAPI, profilepasswordAPI, profilesaveAPI } from "../services/userProfileServices";
+import { useNavigate } from "react-router-dom";
 
 const AdopterProfilePage = () => {
-  // Example vendor data (replace with dynamic data from an API or state)
-  const initialVendorData = {
-    logo: "https://via.placeholder.com/150", // Replace with the actual logo URL
-    name: "Adopter Name",
-    email: "adopter@example.com",
-    phone: "+123 456 7890",
-    address: "123 adopter Street, City, Country",
-    description: "i want pets",
-  };
-
-  // State to manage vendor data
-  const [vendorData, setVendorData] = useState(initialVendorData);
-
-  // State to toggle between view and edit modes
+  const queryClient = useQueryClient();
   const [isEditMode, setIsEditMode] = useState(false);
-
-  // State to toggle the Change Password form
   const [showChangePassword, setShowChangePassword] = useState(false);
-
-  // State to manage password change form inputs
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmNewPassword: "",
   });
+  
+  // Fetch adopter profile data
+  const { data, isLoading, isError, error } = useQuery({
+    queryFn: profilesaveAPI,
+    queryKey: ['profile-view'],
+  });
+  useEffect(() => {
+    if (data) {
+      setProfileData(data);
+    }
+  }, [data]);
 
-  // Handle input changes in edit mode
+// Local state for form data
+const [profileData, setProfileData] = useState(data); 
+const navigate =useNavigate()
+  // Mutation for updating profile
+   const { mutateAsync:changePasswordMutation, } = useMutation({
+          mutationFn: profileeditAPI, // Ensure this function is defined in userServices.js
+          mutationKey: ["edit-profile"],
+          onSuccess: () => {
+            queryClient.invalidateQueries(['adopter-profile']);
+            alert('✅ Profile updated successfully!');
+            navigate('/home');
+          },
+          onError: (error) => {
+            alert('❌ Error updating profile: ' + error.message);
+          },
+        });
+
+  // Mutation for changing password
+  const { mutateAsync:updateProfileMutation, isPending, } = useMutation({
+    mutationKey: ['change-pswd'],
+    mutationFn: profilepasswordAPI,
+    onSuccess: () => {
+      alert('✅ Password changed successfully!');
+      setIsChangingPassword(false);
+    },
+    onError: () => {
+      alert('❌ Failed to change password. Please try again.');
+    },
+  });
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setVendorData((prevData) => ({
+    setProfileData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
 
-  // Handle password input changes
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData((prevData) => ({
@@ -47,73 +73,62 @@ const AdopterProfilePage = () => {
     }));
   };
 
-  // Handle form submission for profile changes
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Save changes (you can add API call here to update the backend)
-    console.log("Updated Vendor Data:", vendorData);
-    setIsEditMode(false); // Switch back to view mode after saving
+    updateProfileMutation(profileData); // Use `editData` instead of `profileData` if needed
   };
 
-  // Handle form submission for password change
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
-    // Validate new password and confirm new password
     if (passwordData.newPassword !== passwordData.confirmNewPassword) {
       alert("New password and confirm password do not match.");
       return;
     }
-    // Save new password (you can add API call here to update the backend)
-    console.log("Password Change Data:", passwordData);
-    alert("Password changed successfully!");
-    setShowChangePassword(false); // Hide the change password form
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmNewPassword: "",
-    });
+    changePasswordMutation(passwordData);
   };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error: {error.message}</div>;
 
   return (
     <ProfileWrapper>
       <div className="profile-container">
         <div className="profile-header">
-          <img src={avatar} alt="Vendor Logo" className="vendor-logo" />
+          {/* <img src={avatar} alt="Adopter Profile" className="profile-image" /> */}
           {isEditMode ? (
             <input
               type="text"
-              name="name"
-              value={vendorData.name}
+              name="username"
+              value={profileData?.username || ""}
               onChange={handleInputChange}
               className="edit-input"
             />
           ) : (
-            <h2>{vendorData.name}</h2>
+            <h2>{profileData?.username || "Username"}</h2>
           )}
         </div>
 
         {isEditMode ? (
-          // Edit Mode: Display form
           <form onSubmit={handleSubmit}>
             <div className="profile-details">
               <div className="detail-item">
+              
                 <label>Email</label>
                 <input
                   type="email"
                   name="email"
-                  value={vendorData.email}
+                  value={profileData?.email || ""}
                   onChange={handleInputChange}
                   className="edit-input"
                 />
-              </div>
-              <div className="detail-item">
-                <label>Phone</label>
-                <input
-                  type="text"
-                  name="phone"
-                  value={vendorData.phone}
+              
+                <label>Bio</label>
+                <textarea
+                  name="bio"
+                  value={profileData?.bio || ""}
                   onChange={handleInputChange}
                   className="edit-input"
+                  rows="4"
                 />
               </div>
               <div className="detail-item">
@@ -121,58 +136,113 @@ const AdopterProfilePage = () => {
                 <input
                   type="text"
                   name="address"
-                  value={vendorData.address}
+                  value={profileData?.address || ""}
                   onChange={handleInputChange}
                   className="edit-input"
                 />
               </div>
               <div className="detail-item">
-                <label>Description</label>
+                <label>Livelihood</label>
+                <input
+                  type="text"
+                  name="livelihood"
+                  value={profileData?.livelihood || ""}
+                  onChange={handleInputChange}
+                  className="edit-input"
+                />
+              </div>
+              <div className="detail-item">
+                <label>Adopter Preferences</label>
                 <textarea
-                  name="description"
-                  value={vendorData.description}
+                  name="adopterPreferences"
+                  value={profileData?.adopterPreferences || ""}
                   onChange={handleInputChange}
                   className="edit-input"
                   rows="4"
                 />
               </div>
+              <div className="detail-item">
+                <label>Lifestyle Info</label>
+                <textarea
+                  name="lifestyleInfo"
+                  value={profileData?.lifestyleInfo || ""}
+                  onChange={handleInputChange}
+                  className="edit-input"
+                  rows="4"
+                />
+              </div>
+              <div className="detail-item">
+                <label>Experience With Pets</label>
+                <textarea
+                  name="experienceWithPets"
+                  value={profileData?.experienceWithPets || ""}
+                  onChange={handleInputChange}
+                  className="edit-input"
+                  rows="4"
+                />
+              </div>
+              <div className="detail-item">
+                <label>Desired Pet Characteristics</label>
+                <textarea
+                  name="desiredPetCharacteristics"
+                  value={profileData?.desiredPetCharacteristics || ""}
+                  onChange={handleInputChange}
+                  className="edit-input"
+                  rows="4"
+                />
+              </div>
+              
             </div>
-            <button type="submit" className="save-button">
-              Save Changes
+            <button type="submit" className="save-button" disabled={updateProfileMutation.isLoading}>
+              {updateProfileMutation.isLoading ? "Saving..." : "Save Changes"}
             </button>
             <button
               type="button"
               className="cancel-button"
               onClick={() => setIsEditMode(false)}
+              disabled={updateProfileMutation.isLoading}
             >
               Cancel
             </button>
           </form>
         ) : (
-          // View Mode: Display details
           <>
             <div className="profile-details">
               <div className="detail-item">
-                <label>Email</label>
-                <p>{vendorData.email}</p>
-              </div>
               <div className="detail-item">
-                <label>Phone</label>
-                <p>{vendorData.phone}</p>
+                <label>Email</label>
+                <p>{profileData?.email || ""}</p>
+              </div>
+                <label>Bio</label>
+                <p>{profileData?.bio || ""}</p>
               </div>
               <div className="detail-item">
                 <label>Address</label>
-                <p>{vendorData.address}</p>
+                <p>{profileData?.address || ""}</p>
               </div>
               <div className="detail-item">
-                <label>Description</label>
-                <p>{vendorData.description}</p>
+                <label>Livelihood</label>
+                <p>{profileData?.livelihood || ""}</p>
               </div>
+              <div className="detail-item">
+                <label>Adopter Preferences</label>
+                <p>{profileData?.adopterPreferences || ""}</p>
+              </div>
+              <div className="detail-item">
+                <label>Lifestyle Info</label>
+                <p>{profileData?.lifestyleInfo || ""}</p>
+              </div>
+              <div className="detail-item">
+                <label>Experience With Pets</label>
+                <p>{profileData?.experienceWithPets || ""}</p>
+              </div>
+              <div className="detail-item">
+                <label>Desired Pet Characteristics</label>
+                <p>{profileData?.desiredPetCharacteristics || ""}</p>
+              </div>
+              
             </div>
-            <button
-              className="edit-button"
-              onClick={() => setIsEditMode(true)}
-            >
+            <button className="edit-button" onClick={() => setIsEditMode(true)}>
               Edit Profile
             </button>
             <button
@@ -184,7 +254,6 @@ const AdopterProfilePage = () => {
           </>
         )}
 
-        {/* Change Password Form */}
         {showChangePassword && (
           <div className="change-password-form">
             <h3>Change Password</h3>
@@ -222,13 +291,18 @@ const AdopterProfilePage = () => {
                   required
                 />
               </div>
-              <button type="submit" className="save-button">
-                Change Password
+              <button 
+                type="submit" 
+                className="save-button"
+                disabled={changePasswordMutation.isLoading}
+              >
+                {changePasswordMutation.isLoading ? "Updating..." : "Change Password"}
               </button>
               <button
                 type="button"
                 className="cancel-button"
                 onClick={() => setShowChangePassword(false)}
+                disabled={changePasswordMutation.isLoading}
               >
                 Cancel
               </button>
@@ -240,7 +314,7 @@ const AdopterProfilePage = () => {
   );
 };
 
-// Styled Components
+// Styled Components remain the same as in your original code
 const ProfileWrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -261,7 +335,7 @@ const ProfileWrapper = styled.div`
     .profile-header {
       margin-bottom: 2.5rem;
 
-      .vendor-logo {
+      .profile-image {
         width: 120px;
         height: 120px;
         border-radius: 50%;

@@ -2,23 +2,24 @@ const Adoption = require('../models/adoptionModel'); // Adjust path as necessary
 const asyncHandler = require('express-async-handler');
 const Animal = require('../models/animalModel');
 const Notification = require('../models/notificationModel');
+const User = require('../models/userModel');
 
 function calculateMatch(adopter, pet) {
     let score = 0;
 
     // Match species (e.g., dog vs dog, cat vs cat)
-    if (adopter.desiredPetCharacteristics.includes(pet.species)) {
-        score += 10; // 10 points for species match
+    if (adopter.adopterPreferences?.includes(pet.species)) {
+        score += 15;
     }
 
     // Match size (small, medium, large)
-    if (adopter.desiredPetCharacteristics.includes(pet.size)) {
-        score += 10; // 10 points for size match
+    if (adopter.adopterPreferences?.includes(pet.size)) {
+        score += 10;
     }
 
     // Match temperament (e.g., calm, playful)
-    if (adopter.lifestyleInfo.includes(pet.temperament)) {
-        score += 10; // 10 points for temperament match
+    if (adopter.lifestyleInfo?.includes(pet.temperament)) {
+        score += 10;
     }
 
     // Experience with pets
@@ -27,15 +28,17 @@ function calculateMatch(adopter, pet) {
     }
 
     // Match health status (if the adopter wants a pet with specific health needs)
-    if (adopter.lifestyleInfo.includes(pet.healthStatus)) {
-        score += 5; // 5 points for health status match
-    }
-
-    // Match vaccination status (if relevant to adopter preferences)
-    if (adopter.lifestyleInfo.includes(pet.vaccinated ? 'vaccinated' : 'unvaccinated')) {
+    if (adopter.lifestyleInfo?.includes(pet.healthStatus)) {
         score += 5;
     }
 
+    // Match vaccination status (if relevant to adopter preferences)
+    if (adopter.lifestyleInfo?.includes(pet.vaccinated ? 'vaccinated' : 'unvaccinated')) {       
+         score += 5;
+    }
+    if (adopter.wishlist?.some(wishPet => wishPet._id.equals(pet._id))) {
+        score += 20;
+    }
     return score;
 }
 
@@ -44,33 +47,26 @@ const adoptionController = {
     // Create a new adoption application
     
 
-createApplication: asyncHandler(async (req, res) => {
-    try {
-        const { animalId, lifestyleInfo, livingSituation, experienceWithPets, desiredPetCharacteristics, shelterId, notes } = req.body;
-        const pet = await Animal.findById(animalId);
-
+    createApplication: asyncHandler(async (req, res) => {   
+         try {
+            const { animalId } = req.body;
+            const pet = await Animal.findById(animalId);
         if (!pet) {
-            return res.status(404).json({ message: "Pet not found" });
-        }
+                 return res.status(404).json({ message: "Pet not found" });
+             }
 
         // Create a new adoption application
         const newApplication = new Adoption({
             applicantId: req.user.id,
-            animalId,
-            lifestyleInfo,
-            livingSituation,
-            experienceWithPets,
-            desiredPetCharacteristics,
-            shelterId,
-            notes,
-            rehomingIndividualId: pet.listedBy
+            animalId,            
+            shelterId:pet.shelterId
         });
 
         // Save the adoption application
         await newApplication.save();
 
         // Determine the recipient of the notification
-        const recipientId = shelterId || pet.listedBy; // Either the shelter or the individual who listed the pet
+        const recipientId = pet.shelterId // Either the shelter or the individual who listed the pet
 
         // Create a new notification
         const notification = new Notification({
@@ -190,16 +186,19 @@ createApplication: asyncHandler(async (req, res) => {
     }),
 
     findBestMatches: asyncHandler(async (req, res) => {
-        const adopter = await Adoption.findOne({ applicantId: req.user.id });
-        const pets = await Animal.find({ status: 'available' });    
+        const adopter = await User.findOne({ _id: req.user.id }).populate("wishlist");
+         if (!adopter) {
+             return res.status(404).json({ message: "Adopter not found" });
+         }
+         const pets = await Animal.find({ status: 'available' });    
         const matches = pets.map(pet => {
             return {
                 pet,
-                score: calculateMatch(adopter, pet)
-            }
-        });    
-        matches.sort((a, b) => b.score - a.score);    
-        return res.send(matches);
+                score: calculateMatch(adopter, pet),
+            };
+        });
+        matches.sort((a, b) => b.score - a.score);
+        return res.json(matches);
     })
 };
 
