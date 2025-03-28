@@ -3,16 +3,17 @@ import styled from "styled-components";
 import { useGlobalContext } from "../context/context";
 import { useNavigate } from "react-router-dom";
 import { logoutAction } from "../redux/userSlice";
+import { useDispatch } from "react-redux";
 
 const Logout = () => {
   const { logoutUser } = useGlobalContext(); // Access logout function from context
   const navigate = useNavigate(); // For navigation
-
+const dispatch=useDispatch()
   const handleLogout = () => {
-    logoutUser(); // Call the logout function
-    logoutAction();
-    localStorage.clear()
-    navigate("/login"); // Redirect to the login page
+    logoutUser(); // Clear context
+    dispatch(logoutAction()); // Clear Redux state
+    localStorage.clear(); // Clear all local storage
+    navigate("/login", { replace: true }); // Redirect and replace history
   };
 
   return (

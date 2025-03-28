@@ -1,35 +1,82 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { avatar } from "../../assets/imagedata";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { shelteraddAPI, sheltereditAPI } from "../../services/shelterServices";
+import { profilepasswordAPI } from "../../services/userProfileServices";
+import { useNavigate } from "react-router-dom";
+
 
 const ShelterProfilePage = () => {
-  // Example vendor data (replace with dynamic data from an API or state)
-  const initialVendorData = {
-    logo: "https://via.placeholder.com/150", // Replace with the actual logo URL
-    name: "shelter Name",
-    email: "shelter@example.com",
-    phone: "+123 456 7890",
-    address: "123 shelter Street, City, Country",
-    description: "We provide good pets.",
-  };
+  // Fetch shelter data using React Query
+  const { data, isLoading, isError, error } = useQuery({
+      queryFn: shelteraddAPI,
+      queryKey: ['profile'],
+    });
+    useEffect(() => {
+        if (data) {
+          setVendorData(data);
+        }
+      }, [data]);
+    const navigate =useNavigate()
+   const { mutateAsync:updateProfileMutation, } = useMutation({
+             mutationFn: sheltereditAPI, // Ensure this function is defined in userServices.js
+             mutationKey: ["editprofile"],
+             onSuccess: () => {
+               alert('✅ Profile updated successfully!');
+               navigate('/shelterhome');
+             },
+             onError: (error) => {
+               alert('❌ Error updating profile: ' + error.message);
+             },
+           });
+    const { mutateAsync:changePasswordMutation, isPending, } = useMutation({
+        mutationKey: ['change-pswd'],
+        mutationFn: profilepasswordAPI,
+        onSuccess: () => {
+          alert('✅ Password changed successfully!');
+          setIsChangingPassword(false);
+        },
+        onError: () => {
+          alert('❌ Failed to change password. Please try again.');
+        },
+      });
+  // Initialize vendor data with the fetched data or empty defaults
+  const [vendorData, setVendorData] = useState({
+    logo: "",
+    organizationName: "",
+    email: "",
+    phone: "",
+    address: "",
+    missionStatement: "",
+    facilityImages: [],
+    username: ""
+  });
 
-  // State to manage vendor data
-  const [vendorData, setVendorData] = useState(initialVendorData);
-
-  // State to toggle between view and edit modes
+  // Update state when data arrives
+  useEffect(() => {
+    if (data) {
+      setVendorData({
+        logo: data.logo || "",
+         username: data.userId.username || "",
+         email: data.userId.email || "",
+        organizationName: data.organizationName || "",
+        phone: data.phone || "",
+        address: data.address || "",
+        missionStatement: data.missionStatement || "",
+        facilityImages: data.facilityImages || [],
+      });
+    }
+  }, [data]);
+  console.log(vendorData);
+  // Rest of your existing state and handlers remain the same
   const [isEditMode, setIsEditMode] = useState(false);
-
-  // State to toggle the Change Password form
   const [showChangePassword, setShowChangePassword] = useState(false);
-
-  // State to manage password change form inputs
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmNewPassword: "",
   });
-
-  // Handle input changes in edit mode
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setVendorData((prevData) => ({
@@ -38,7 +85,6 @@ const ShelterProfilePage = () => {
     }));
   };
 
-  // Handle password input changes
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData((prevData) => ({
@@ -47,26 +93,22 @@ const ShelterProfilePage = () => {
     }));
   };
 
-  // Handle form submission for profile changes
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Save changes (you can add API call here to update the backend)
     console.log("Updated Vendor Data:", vendorData);
-    setIsEditMode(false); // Switch back to view mode after saving
+    updateProfileMutation(vendorData)
+    setIsEditMode(false);
   };
 
-  // Handle form submission for password change
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
-    // Validate new password and confirm new password
     if (passwordData.newPassword !== passwordData.confirmNewPassword) {
       alert("New password and confirm password do not match.");
       return;
     }
-    // Save new password (you can add API call here to update the backend)
     console.log("Password Change Data:", passwordData);
     alert("Password changed successfully!");
-    setShowChangePassword(false); // Hide the change password form
+    setShowChangePassword(false);
     setPasswordData({
       currentPassword: "",
       newPassword: "",
@@ -74,28 +116,32 @@ const ShelterProfilePage = () => {
     });
   };
 
+  if (isLoading) {
+    return <div>Loading shelter profile...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading shelter profile</div>;
+  }
+
   return (
     <ProfileWrapper>
       <div className="profile-container">
-        <div className="profile-header">
-          <img src={avatar} alt="Vendor Logo" className="vendor-logo" />
-          {isEditMode ? (
-            <input
-              type="text"
-              name="name"
-              value={vendorData.name}
-              onChange={handleInputChange}
-              className="edit-input"
-            />
-          ) : (
-            <h2>{vendorData.name}</h2>
-          )}
-        </div>
-
         {isEditMode ? (
           // Edit Mode: Display form
           <form onSubmit={handleSubmit}>
             <div className="profile-details">
+              <div className="detail-item">
+                <label>Username</label>
+                <input
+                  type="text"
+                  name="username"
+                  value={vendorData.username}
+                  onChange={handleInputChange}
+                  className="edit-input"
+                  disabled
+                />
+              </div>
               <div className="detail-item">
                 <label>Email</label>
                 <input
@@ -106,6 +152,21 @@ const ShelterProfilePage = () => {
                   className="edit-input"
                 />
               </div>
+              <div className="profile-header">
+              <label>OrganizationName</label>
+          {/* <img src={avatar} alt="Vendor Logo" className="vendor-logo" /> */}
+          {isEditMode ? (
+            <input
+              type="text"
+              name="organizationName"
+              value={vendorData.organizationName}
+              onChange={handleInputChange}
+              className="edit-input"
+            />
+          ) : (
+            <h2>{vendorData.organizationName}</h2>
+          )}
+        </div>
               <div className="detail-item">
                 <label>Phone</label>
                 <input
@@ -127,10 +188,10 @@ const ShelterProfilePage = () => {
                 />
               </div>
               <div className="detail-item">
-                <label>Description</label>
+                <label>Mission Statement</label>
                 <textarea
-                  name="description"
-                  value={vendorData.description}
+                  name="missionStatement"
+                  value={vendorData.missionStatement}
                   onChange={handleInputChange}
                   className="edit-input"
                   rows="4"
@@ -153,8 +214,16 @@ const ShelterProfilePage = () => {
           <>
             <div className="profile-details">
               <div className="detail-item">
+                <label>Username</label>
+                <p>{vendorData.username}</p>
+              </div>
+              <div className="detail-item">
                 <label>Email</label>
                 <p>{vendorData.email}</p>
+              </div>
+              <div className="detail-item">
+                <label>OrganizationName</label>
+                <p>{vendorData.organizationName}</p>
               </div>
               <div className="detail-item">
                 <label>Phone</label>
@@ -165,8 +234,8 @@ const ShelterProfilePage = () => {
                 <p>{vendorData.address}</p>
               </div>
               <div className="detail-item">
-                <label>Description</label>
-                <p>{vendorData.description}</p>
+                <label>Mission Statement</label>
+                <p>{vendorData.missionStatement}</p>
               </div>
             </div>
             <button
@@ -240,7 +309,7 @@ const ShelterProfilePage = () => {
   );
 };
 
-// Styled Components
+// Your styled components remain exactly the same
 const ProfileWrapper = styled.div`
   display: flex;
   justify-content: center;

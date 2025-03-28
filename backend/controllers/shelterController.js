@@ -1,30 +1,59 @@
 const Animal = require('../models/animalModel');
 const Shelter = require('../models/shelterModel');
 const asyncHandler = require('express-async-handler');
+const User = require('../models/userModel');
 
 const shelterController = {
-    createProfile: asyncHandler(async (req, res) => {
-        const {organizationName, missionStatement, contactInfo, location } = req.body;
-        const userId=req.user.id
-        const exist=await Shelter.findOne({organizationName,location})
-        if(exist){
-            throw new Error("Shelter already exists")
+    upsertShelterProfile : asyncHandler(async (req, res) => {
+        const { organizationName, missionStatement, phone, address } = req.body;
+        const userId = req.user.id;
+    
+        // Fetch user details
+        const user = await User.findById(userId).select("username email");
+        if (!user) {
+            res.status(404);
+            throw new Error("User not found");
         }
-        const newProfile = new Shelter({
-            userId,
-            organizationName,
-            missionStatement,
-            contactInfo,
-            location,
-            facilityImages:req.files,
-        });
-        const savedProfile = await newProfile.save();
-        res.status(201).json(savedProfile);
+    
+        let shelterProfile;
+    
+        if (user) {
+            // Updating an existing shelter profile
+            shelterProfile = await Shelter.findOne({userId:user});
+            if (!shelterProfile) {
+                res.status(404);
+                throw new Error("Shelter profile not found");
+            }
+            Object.assign(shelterProfile, { organizationName, missionStatement, phone, address, facilityImages: req.files });
+        } else {
+            // Check if a shelter with the same name and address exists
+            const exists = await Shelter.findOne({ organizationName, address });
+            if (exists) {
+                throw new Error("Shelter already exists");
+            }
+    
+            // Creating a new shelter profile
+            shelterProfile = new Shelter({
+                userId,
+                organizationName,
+                missionStatement,
+                phone,
+                address,
+                facilityImages: req.files,
+                username: user.username,
+                email: user.email,
+            });
+        }
+    
+        const savedProfile = await shelterProfile.save();
+        console.log(savedProfile);
+        res.status(200).json(savedProfile);
     }),
+    
+    getProfile: asyncHandler(async (req, res) => {
+        const id=req.user.id
+        const profile = await Shelter.findOne({userId:id}).populate('userId', 'username email');
 
-    getProfileById: asyncHandler(async (req, res) => {
-        const {id}=req.body
-        const profile = await Shelter.findById(id).populate('userId', 'name email');
 
         if (!profile) {
             res.status(404);
@@ -34,20 +63,6 @@ const shelterController = {
         res.status(200).json(profile);
     }),
 
-    // Update Shelter/Rescue Profile
-    updateProfile: asyncHandler(async (req, res) => {
-        const {id}=req.body
-        const profile = await Shelter.findById(id);
-
-        if (!profile) {
-            res.status(404);
-            throw new Error('Profile not found');
-        }
-
-        Object.assign(profile, req.body);
-        const updatedProfile = await profile.save();
-        res.status(200).json(updatedProfile);
-    }),
 
     // Delete Shelter/Rescue Profile
     deleteProfile: asyncHandler(async (req, res) => {

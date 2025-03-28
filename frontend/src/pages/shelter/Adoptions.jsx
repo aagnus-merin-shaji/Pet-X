@@ -5,24 +5,6 @@ import styled from "styled-components";
 const Adoptions = () => {
   const navigate = useNavigate();
   const [adoptionRequests, setAdoptionRequests] = useState([
-    {
-      id: 1,
-      petName: "Bella",
-      petBreed: "Golden Retriever",
-      petAge: "3 years",
-      applicantName: "John Doe",
-      applicantEmail: "john.doe@example.com",
-      status: "Pending",
-    },
-    {
-      id: 2,
-      petName: "Max",
-      petBreed: "Labrador",
-      petAge: "2 years",
-      applicantName: "Jane Smith",
-      applicantEmail: "jane.smith@example.com",
-      status: "Pending",
-    },
   ]);
 
   const [selectedRequestId, setSelectedRequestId] = useState(null);

@@ -14,37 +14,14 @@ const shelterSchema = new mongoose.Schema({
         type: String, 
         required: true 
     },
-    contactInfo: {
-        phone: { 
+    phone: { 
             type: String, 
             required: true 
         },
-        email: { 
+            address: { 
             type: String, 
             required: true 
         },
-        website: { 
-            type: String 
-        },
-    },
-    location: {
-        address: { 
-            type: String, 
-            required: true 
-        },
-        city: { 
-            type: String, 
-            required: true 
-        },
-        state: { 
-            type: String, 
-            required: true 
-        },
-        zipCode: { 
-            type: String, 
-            required: true 
-        },
-    },
     facilityImages: [
         { 
             type: String 

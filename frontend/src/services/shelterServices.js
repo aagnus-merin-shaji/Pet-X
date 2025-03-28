@@ -1,9 +1,11 @@
 import axios from "axios";
 import { BASE_URL } from "../utils/url";
-import { getUserData } from "../utils/storageHandler";
+import { getToken } from "../utils/storageHandler";
 
-export const shelteraddAPI= async(data)=>{
-    const response = await axios.post(`${BASE_URL}/shelter/add`,data, {
+const token = getToken()
+
+export const shelteraddAPI= async()=>{
+    const response = await axios.get(`${BASE_URL}/shelter/search`, {
         headers:{
             Authorization: `Bearer ${token}`,
             
@@ -13,8 +15,10 @@ export const shelteraddAPI= async(data)=>{
 }
 
 export const sheltereditAPI= async(data)=>{
-    const response = await axios.put(`${BASE_URL}/shelter/edit`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+    const response = await axios.put(`${BASE_URL}/shelter/save`,data, {
+        headers:{
+            Authorization: `Bearer ${token}`,            
+        }  // Make sure credentials (cookies) are sent
     });
     return response.data
 }
@@ -46,3 +50,5 @@ export const shelterdeleteAPI= async(data)=>{
     });
     return response.data
 }
+
+
