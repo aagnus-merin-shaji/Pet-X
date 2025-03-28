@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { adoptionaddAPI } from "../../services/adoptionServices";
+import { useMutation } from "@tanstack/react-query";
 
 const Adoptions = () => {
   const navigate = useNavigate();
   const [adoptionRequests, setAdoptionRequests] = useState([
   ]);
-
+ const { mutateAsync, isPending, isError, error } = useMutation({
+    mutationFn: adoptionaddAPI,
+    mutationKey: ["adoption-request"],
+  });
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [actionType, setActionType] = useState(""); // "accept" or "reject"

@@ -49,8 +49,8 @@ const adoptionController = {
 
     createApplication: asyncHandler(async (req, res) => {   
          try {
-            const { animalId } = req.body;
-            const pet = await Animal.findById(animalId);
+            const { id } = req.params;
+            const pet = await Animal.findById(id);
         if (!pet) {
                  return res.status(404).json({ message: "Pet not found" });
              }
@@ -58,7 +58,7 @@ const adoptionController = {
         // Create a new adoption application
         const newApplication = new Adoption({
             applicantId: req.user.id,
-            animalId,            
+            id,            
             shelterId:pet.shelterId
         });
 

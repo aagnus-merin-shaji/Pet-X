@@ -4,7 +4,7 @@ import { getToken } from "../utils/storageHandler";
 const token = getToken()
 
 export const adoptionaddAPI= async(data)=>{
-    const response = await axios.post(`${BASE_URL}/adoption/add`,data, {
+    const response = await axios.post(`${BASE_URL}/adoption/add/${data}`, {
         headers:{
             Authorization: `Bearer ${token}`
         }    // Make sure credentials (cookies) are sent
