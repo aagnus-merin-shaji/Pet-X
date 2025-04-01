@@ -27,8 +27,9 @@ const Portfolio = () => {
     };
 
     const handleAdoptClick = async(pet) => {
-       await mutateAsync({userId: userId, 
-        petId: pet._id})
+        console.log("clicked");
+        
+       await mutateAsync(pet)
         navigate('/adopter-adoptions', { state: { pet } });
     };
 
@@ -72,8 +73,7 @@ const Portfolio = () => {
                         <button
     style={styles.adoptButton}
     onClick={() => {
-        handleAdoptClick(pet); // Your existing adoption function
-        alert("Request sent!"); // Simple alert
+        handleAdoptClick(pet._id); // Your existing adoption function
     }}
 >
     Adopt

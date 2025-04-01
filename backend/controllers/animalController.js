@@ -1,14 +1,17 @@
 const Animal = require('../models/animalModel');
 const asyncHandler = require('express-async-handler');
+const Shelter = require('../models/shelterModel');
 
 const animalController = {
     // Add new animal listing
     createListing: asyncHandler(async (req, res) => {
-        const { name, species, breed, age, size, temperament, healthStatus, vaccinated, spayedNeutered, adoptionFee, description, listedByIndividual, shelterId } = req.body;
+        const { name, species, breed, age, size, temperament, healthStatus, vaccinated, spayedNeutered, adoptionFee, description, listedByIndividual } = req.body;
         // Ensure files are uploaded
   if (!req.files || !req.files.photos) {
     return res.status(400).send({ message: "No photos uploaded" });
   }
+  const shelter=await Shelter.findOne({userId:req.user.id})
+  const shelterId=shelter._id
         const newAnimal = new Animal({
             name, shelterId, species, breed, age, size, temperament, vaccinated,healthStatus, adoptionFee, description, photos: req.files.photos[0].path, // Use the file path
             listedByIndividual: listedByIndividual || null,

@@ -12,22 +12,7 @@ const AdopterAdoptions = () => {
 
   // Dummy data for ordered pets (replace with actual data from API)
   const orderedPets = [
-    {
-      id: 1,
-      name: "Buddy",
-      type: "Dog",
-      breed: "Golden Retriever",
-      shelter: "Happy Paws Shelter",
-      status: "Approved",
-    },
-    {
-      id: 2,
-      name: "Mittens",
-      type: "Cat",
-      breed: "Siamese",
-      shelter: "Furry Friends Shelter",
-      status: "Pending",
-    },
+    
   ];
 
   // Handle payment button click

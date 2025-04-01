@@ -9,7 +9,7 @@ export const usersregisterAPI= async(data)=>{
     const response = await axios.post(`${BASE_URL}/users/register`,data, {
         headers:{
             Authorization: `Bearer ${token}`
-        }  // Make sure credentials (cookies) are sent
+        }  
     });
     return response.data
 }

@@ -13,7 +13,6 @@ import { store } from "./redux/Store.js";
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
     <BrowserRouter>
       <Provider store={store}>
         <AppProvider>
@@ -26,5 +25,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </AppProvider>
       </Provider>
     </BrowserRouter>
-  </React.StrictMode>
 );

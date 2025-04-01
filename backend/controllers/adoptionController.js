@@ -3,6 +3,7 @@ const asyncHandler = require('express-async-handler');
 const Animal = require('../models/animalModel');
 const Notification = require('../models/notificationModel');
 const User = require('../models/userModel');
+const Shelter = require('../models/shelterModel');
 
 function calculateMatch(adopter, pet) {
     let score = 0;
@@ -51,6 +52,8 @@ const adoptionController = {
          try {
             const { id } = req.params;
             const pet = await Animal.findById(id);
+            console.log(pet);
+            
         if (!pet) {
                  return res.status(404).json({ message: "Pet not found" });
              }
@@ -58,7 +61,7 @@ const adoptionController = {
         // Create a new adoption application
         const newApplication = new Adoption({
             applicantId: req.user.id,
-            id,            
+            animalId:id,            
             shelterId:pet.shelterId
         });
 
@@ -92,13 +95,14 @@ const adoptionController = {
     // Get all adoption applications for a shelter
     getApplicationsByShelter: asyncHandler(async (req, res) => {
         try {
-            const {shelterId} = req.body;
-
+            const shelter = await Shelter.findOne({userId:req.user.id});
+            const shelterId=shelter.id
             // Find adoption applications for the given shelter
             const applications = await Adoption.find({ shelterId })
-                .populate('applicantId', 'name email') // Populate applicant information
+                .populate('applicantId', 'username email') // Populate applicant information
                 .populate('animalId', 'name breed type') // Populate animal details
                 .populate('shelterId', 'name location'); // Populate shelter information
+
 
             res.status(200).json({ applications });
         } catch (error) {
