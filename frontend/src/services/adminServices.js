@@ -57,3 +57,12 @@ export const adminviewallAPI= async()=>{
     });
     return response.data
 }
+
+export const totalanimalAPI= async()=>{
+    const response = await axios.get(`${BASE_URL}/admin/viewall`, {
+        headers:{
+            Authorization: `Bearer ${token}`
+        }  // Make sure credentials (cookies) are sent
+    });
+    return response.data
+}

@@ -71,6 +71,7 @@ const adminController = {
             
             res.json({ animals });
         }),
+
 };
 
 module.exports = adminController;

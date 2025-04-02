@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { adminusersAPI, totalusersAPI } from "../services/adminServices";
+import { adminusersAPI, totalanimalAPI, totalusersAPI } from "../services/adminServices";
 import { useQuery } from "@tanstack/react-query";
 import Logout from "./Logout";
 
@@ -377,10 +377,18 @@ const AdminDashboard = () => {
     queryKey: ['view-totalusers']
   });
   console.log(totalusers);
+
+  const { data:totalanimal} = useQuery({
+    queryFn: totalanimalAPI,
+    queryKey: ['view-totalanimal']
+  });
+  
   
 const total=totalusers?.length
+const pets=totalanimal?.animals?.length
+console.log(totalanimal);
   const dashboardStats = [
-    { title: "Registered Pets", count: 350, icon: "🐾" },
+    { title: "Shelter Pets",  icon: "🐾",count:pets },
     { title: "Lost Pet Alerts", count: 45, icon: "🔔" },
     { title: "Adoption Requests", count: 120, icon: "🏡" },
     { title: "Emergency Reports", count: 28, icon: "⚠" },
