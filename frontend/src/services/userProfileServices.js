@@ -29,7 +29,7 @@ export const profileeditAPI= async(data)=>{
     return response.data
 }
 
-export const profilepasswordAPI= async()=>{
+export const profilepasswordAPI= async(data)=>{
     const response = await axios.put(`${BASE_URL}/users/changepass`,data, {
         headers:{
             Authorization: `Bearer ${token}`

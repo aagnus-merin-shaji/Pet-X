@@ -2,8 +2,9 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { animalsviewallAPI } from '../services/animalServices';
-import { adoptionaddAPI } from '../services/adoptionServices';
+import { adoptionaddAPI, adoptionmatchesAPI } from '../services/adoptionServices';
 import { useSelector } from 'react-redux';
+import { FaStar } from "react-icons/fa";
 
 const Portfolio = () => {
     const [expandedId, setExpandedId] = useState(null);
@@ -18,7 +19,11 @@ const Portfolio = () => {
         mutationFn: adoptionaddAPI, // Ensure this function is defined in userServices.js
         mutationKey: ["add-request"],
       });
-
+    
+      const { data:matches } = useQuery({
+        queryFn: adoptionmatchesAPI,
+        queryKey: ['animal-matches']
+    });
       const userId = useSelector((state) => state.user.id);
       console.log(userId);
 
@@ -42,8 +47,66 @@ const Portfolio = () => {
     if (isLoading) return <div style={styles.loading}>Loading pets...</div>;
     if (isError) return <div style={styles.error}>Error: {error.message}</div>;
     const pets=data.animals
+    console.log(matches);
+    
     return (
+        <>
+        <div>
+        <h1>
+      <FaStar style={{ marginRight: "10px", verticalAlign: "middle" }} />
+
+      Suggested for You
+    </h1> 
+    <div style={styles.grid}>
+            
+            {matches?.map((animal) => (
+                <div key={animal.pet._id || animal.pet.id} style={styles.card}>
+                    <div style={styles.cardContent}>
+                        <h2 style={styles.petName}>{animal.pet.name}</h2>
+                        <p style={styles.petInfo}>Breed: {animal.pet.breed}</p>
+                        <p style={styles.petInfo}>Age: {animal.pet.age}</p>
+                        <p style={animal.pet.vaccinated ? styles.vaccinated : styles.notVaccinated}>
+                            {animal.pet.vaccinated ? "Vaccinated ✅" : "Not Vaccinated ❌"}
+                        </p>
+                        <p style={styles.petInfo}>Size: {animal.pet.size}</p>
+                        <p style={styles.petInfo}>Adoption Fee: {animal.pet.adoptionFee}</p>
+                    </div>
+                    <img src={animal.pet.photos} alt={animal.pet.name} style={styles.petphotos} />
+                    <div style={styles.cardContent}>
+                        <p style={styles.petInfo}>Status: {animal.pet.status}</p>
+                        {expandedId === animal.pet.id && (
+                            <p style={styles.moreInfo}>
+                                <strong>Medical History:</strong> {pet.medicalHistory}
+                            </p>
+                        )}
+                        <button
+                            style={styles.readMoreButton}
+                            onClick={() => toggleReadMore(animal.pet._id || animal.pet.id)}
+                        >
+                            {expandedId === animal.pet._id ? "Read Less" : "Read More"}
+                        </button>
+                        <button
+    style={styles.adoptButton}
+    onClick={() => {
+        handleAdoptClick(animal.pet._id); // Your existing adoption function
+    }}
+>
+    Adopt
+</button>
+                        <button
+                            style={styles.medicalViewButton}
+                            onClick={() => handleMedicalViewClick(animal.pet)}
+                        >
+                            Medical View
+                        </button>
+                    </div>
+                </div>
+            ))}
+        </div>       
+    </div>
+        <h1>Other Animals</h1>
         <div style={styles.grid}>
+            
             {pets.map((pet) => (
                 <div key={pet._id || pet.id} style={styles.card}>
                     <div style={styles.cardContent}>
@@ -88,7 +151,9 @@ const Portfolio = () => {
                 </div>
             ))}
         </div>
+        </>
     );
+    
 };
 
 // Add these new styles to your existing styles object

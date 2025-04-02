@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Navigator from "../layout/Navigator"; // Import the Navigator component
+import { useQuery } from "@tanstack/react-query";
+import {  adoptionviewAPI } from "../services/adoptionServices";
 
 const AdopterAdoptions = () => {
   const navigate = useNavigate();
@@ -11,9 +13,12 @@ const AdopterAdoptions = () => {
   const [isContractSignedByAdopter, setIsContractSignedByAdopter] = useState(false);
 
   // Dummy data for ordered pets (replace with actual data from API)
-  const orderedPets = [
-    
-  ];
+  
+  const { data, isLoading } = useQuery({
+    queryFn: adoptionviewAPI,
+    queryKey: ['request']
+});
+const orderedPets=data?.applications
 
   // Handle payment button click
   const handlePayment = (petId) => {
@@ -33,6 +38,7 @@ const AdopterAdoptions = () => {
     console.log(`Viewing contract for pet ID: ${petId}`);
     navigate("/view-contract"); // Redirect to View Contract page
   };
+console.log(orderedPets);
 
   return (
     <>
@@ -44,24 +50,18 @@ const AdopterAdoptions = () => {
         <p>Here are the details of the pets you have ordered:</p>
 
         <div className="pet-list">
-          {orderedPets.map((pet) => (
+          {orderedPets?.map((pet) => (
             <div key={pet.id} className="pet-card">
-              <h2>{pet.name}</h2>
+              <h2>{pet.animalId?.name}</h2>
               <p>
-                <strong>Type:</strong> {pet.type}
+                <strong>Breed:</strong> {pet.animalId?.breed}
               </p>
               <p>
-                <strong>Breed:</strong> {pet.breed}
-              </p>
-              <p>
-                <strong>Shelter:</strong> {pet.shelter}
-              </p>
-              <p>
-                <strong>Status:</strong> {pet.status}
+                <strong>Status:</strong> {pet.adoptionStatus}
               </p>
 
               {/* Payment and Contract Buttons */}
-              {pet.status === "Approved" && (
+              {pet.adoptionStatus === "Approved" && (
                 <div className="button-group">
                   {/* Proceed to Payment Button */}
                   {!isPaymentDone && (

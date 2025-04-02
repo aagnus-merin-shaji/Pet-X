@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useMutation } from "@tanstack/react-query";
 import { usersregisterAPI } from "../services/userServices"; // Ensure this path is correct
+import { jwtDecode } from "jwt-decode";
 
 const Register = () => {
   const navigate = useNavigate();

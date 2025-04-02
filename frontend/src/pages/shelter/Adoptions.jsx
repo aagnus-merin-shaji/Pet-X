@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { adoptionaddAPI, adoptionviewallAPI } from "../../services/adoptionServices";
+import { adoptioneditAPI, adoptionviewallAPI } from "../../services/adoptionServices";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 const Adoptions = () => {
   const navigate = useNavigate();
  
  const { mutateAsync, isPending, isError, error } = useMutation({
-    mutationFn: adoptionaddAPI,
-    mutationKey: ["adoption-request"],
+    mutationFn: adoptioneditAPI,
+    mutationKey: ["request-accept"],
   });
   const { data, isLoading } = useQuery({
     queryFn: adoptionviewallAPI,
@@ -53,7 +53,8 @@ console.log(adoptionRequests);
   };
 
   // Open confirmation modal
-  const openConfirmationModal = (id, type) => {
+  const openConfirmationModal = async(id, type) => { 
+    await mutateAsync({id:id,adoptionStatus:type})
     setSelectedRequestId(id);
     setActionType(type);
     setShowModal(true);
@@ -86,20 +87,20 @@ console.log(adoptionRequests);
             {/* Accept, Reject, and Contract Buttons */}
             <ButtonGroup>
               <AcceptButton
-                onClick={() => openConfirmationModal(request.id, "accept")}
+                onClick={() => openConfirmationModal(request._id, "Approved")}
                 disabled={request.adoptionStatus !== "Pending"}
               >
                 Accept
               </AcceptButton>
               <RejectButton
-                onClick={() => openConfirmationModal(request.id, "reject")}
+                onClick={() => openConfirmationModal(request._id, "Rejected")}
                 disabled={request.adoptionStatus !== "Pending"}
               >
                 Reject
               </RejectButton>
               <ContractButton
-                onClick={() => handleContract(request.id)}
-                disabled={request.adoptionStatus !== "Accepted"}
+                onClick={() => handleContract(request._id)}
+                disabled={request.adoptionStatus !== "Approved"}
               >
                 Sign Contract
               </ContractButton>

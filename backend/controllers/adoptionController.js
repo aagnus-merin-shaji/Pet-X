@@ -136,23 +136,23 @@ const adoptionController = {
     // Update adoption application status (Approved/Rejected)
     updateApplicationStatus: asyncHandler(async (req, res) => {
         try {
-            const { applicationId } = req.body;
-            const { adoptionStatus, notes } = req.body;
-
+            const { id } = req.body;
+            const { adoptionStatus } = req.body;
+            console.log(adoptionStatus);
+            
             // Validate adoption status
             if (!['Approved', 'Rejected'].includes(adoptionStatus)) {
                 return res.status(400).json({ message: 'Invalid adoption status' });
             }
 
             // Find and update the adoption application
-            const application = await Adoption.findById(applicationId);
+            const application = await Adoption.findById(id);
 
             if (!application) {
                 return res.status(404).json({ message: 'Adoption application not found' });
             }
 
             application.adoptionStatus = adoptionStatus;
-            application.notes = notes || application.notes;
 
             await application.save();
             const notification = new Notification({
@@ -161,6 +161,9 @@ const adoptionController = {
             });
     
             await notification.save();
+            if(application.adoptionStatus==="Rejected"){
+                await Adoption.findByIdAndDelete(id)
+            }
             res.status(200).json({ message: 'Adoption application updated successfully', application });
         } catch (error) {
             console.error(error);
@@ -202,8 +205,23 @@ const adoptionController = {
             };
         });
         matches.sort((a, b) => b.score - a.score);
-        return res.json(matches);
-    })
+        return res.json(matches.slice(0, 5));
+    }),
+    getApplicationsByAdopter: asyncHandler(async (req, res) => {
+        try {
+            // Find adoption applications for the given shelter
+            const applications = await Adoption.find({ applicantId:req.user.id })
+                .populate('applicantId', 'username email') // Populate applicant information
+                .populate('animalId', 'name breed type') // Populate animal details
+                .populate('shelterId', 'name location'); // Populate shelter information
+
+
+            res.status(200).json({ applications });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Server error', error });
+        }
+    }),
 };
 
 module.exports = adoptionController;

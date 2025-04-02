@@ -47,7 +47,7 @@ const navLinks = [
   { name: "home", path: "/shelterhome" },
   { name: "addanimal", path: "/shelter/add-animal" },
   { name: "animalsView", path: "/shelter/animals" },
-  { name: "adoptions", path: "/shelter/adoptions" },
+  { name: "adoptionsRequest", path: "/shelter/adoptions" },
   { name: "reports", path: "/shelter/reports" },
 ];
 

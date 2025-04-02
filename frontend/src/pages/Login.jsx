@@ -52,6 +52,9 @@ dispatch(loginUserAction(decodedData));
             navigate("/home");
           } else if (decodedData.role === "admin") {
             navigate("/admin/dashboard");
+          }else
+          {
+            navigate("/clinic/home")
           }
         } 
   });

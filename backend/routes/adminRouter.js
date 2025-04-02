@@ -10,5 +10,6 @@ adminRoutes.get("/users", userAuthentication,adminAuthentication,adminController
 adminRoutes.get("/adoptions", userAuthentication,adminAuthentication,adminController.getPendingAdoptions);
 adminRoutes.delete("/delete", userAuthentication,adminAuthentication,adminController.deleteUser);
 adminRoutes.get("/viewall", userAuthentication,adminAuthentication,adminController.getAll);
+adminRoutes.get("/viewtotalusers", userAuthentication,adminAuthentication,adminController.getTotalUsers);
 
 module.exports = adminRoutes;

@@ -32,28 +32,29 @@ const [profileData, setProfileData] = useState(data);
 const navigate =useNavigate()
   // Mutation for updating profile
    const { mutateAsync:changePasswordMutation, } = useMutation({
-          mutationFn: profileeditAPI, // Ensure this function is defined in userServices.js
-          mutationKey: ["edit-profile"],
+          mutationFn: profilepasswordAPI, // Ensure this function is defined in userServices.js
+          mutationKey: ["edit-password"],
           onSuccess: () => {
             queryClient.invalidateQueries(['adopter-profile']);
-            alert('✅ Profile updated successfully!');
+            alert('✅ Password updated successfully!');
             navigate('/home');
           },
           onError: (error) => {
-            alert('❌ Error updating profile: ' + error.message);
+            alert('❌ Error updating password: ' + error.message);
           },
         });
 
   // Mutation for changing password
   const { mutateAsync:updateProfileMutation, isPending, } = useMutation({
-    mutationKey: ['change-pswd'],
-    mutationFn: profilepasswordAPI,
+    mutationKey: ['edit-profile'],
+    mutationFn: profileeditAPI,
     onSuccess: () => {
-      alert('✅ Password changed successfully!');
-      setIsChangingPassword(false);
+      queryClient.invalidateQueries(['adopter-profile']);
+      alert('✅ Profile updated successfully!');
+      navigate('/home');
     },
-    onError: () => {
-      alert('❌ Failed to change password. Please try again.');
+    onError: (error) => {
+      alert('❌ Error updating profile: ' + error.message);
     },
   });
 

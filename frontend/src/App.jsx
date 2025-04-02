@@ -18,7 +18,6 @@ import Payment from "./pages/Payment";
 import Portfolio from "./pages/Portfolio";
 import Services from "./pages/Services";
 import GetStart from "./pages/GetStart";
-import ClinicPage from "./pages/ClinicPage";
 import ShelterNavbar from "./components/ShelterNavbar";
 import ShelterHome from "./pages/shelter/ShelterHome";
 import AddAnimal from "./pages/shelter/AddAnimal";
@@ -144,7 +143,6 @@ function App() {
         <Route path="/shelter/profile" element={<ShelterProfilePage />} />
 
         {/* Clinic Routes */}
-        <Route path="/clinic" element={<ClinicPage />} />
         <Route path="/clinic/home" element={<ClinicHome />} />
         <Route path="/clinic/animals" element={<ClinicAnimals />} />
         <Route path="/clinic/animals/medical-details" element={<PetMedicalDetailsForm />} />

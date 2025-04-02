@@ -45,10 +45,14 @@ const adminController = {
 
     // Get all users
     getUsers: asyncHandler(async (req, res) => {
-        const users = await User.find();
+        const users = await User.find({role:"individual"});
         res.json(users);
     }),
 
+    getTotalUsers: asyncHandler(async (req, res) => {
+        const users = await User.find({ role: { $ne: "admin" } });
+                res.json(users);
+    }),
     // Delete a user
     deleteUser: asyncHandler(async (req, res) => {
         const { userId } = req.body;
@@ -58,7 +62,7 @@ const adminController = {
 
     // Get all pending adoptions
     getPendingAdoptions: asyncHandler(async (req, res) => {
-        const adoptions = await Adoption.find({ adoptionStatus: "Pending" });
+        const adoptions = await Adoption.find();
         res.json(adoptions);
     }),
 

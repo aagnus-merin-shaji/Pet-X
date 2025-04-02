@@ -14,9 +14,13 @@ export const adoptionaddAPI= async(data)=>{
     return response.data
 }
 
-export const adoptioneditAPI= async()=>{
+export const adoptioneditAPI= async(data)=>{
+    console.log(data);
+    
     const response = await axios.put(`${BASE_URL}/adoption/edit`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+        headers:{
+            Authorization: `Bearer ${token}`
+        } // Make sure credentials (cookies) are sent
     });
     return response.data
 }
@@ -38,8 +42,10 @@ export const adoptionsearchAPI= async()=>{
 }
 
 export const adoptionmatchesAPI= async()=>{
-    const response = await axios.get(`${BASE_URL}/adoption/matches`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+    const response = await axios.get(`${BASE_URL}/adoption/matches`, {
+        headers:{
+            Authorization: `Bearer ${token}`
+        }   // Make sure credentials (cookies) are sent
     });
     return response.data
 }
@@ -47,6 +53,14 @@ export const adoptionmatchesAPI= async()=>{
 export const adoptiondeleteAPI= async()=>{
     const response = await axios.delete(`${BASE_URL}/adoption/delete`,data, {
         withCredentials: true,  // Make sure credentials (cookies) are sent
+    });
+    return response.data
+}
+export const adoptionviewAPI= async()=>{
+    const response = await axios.get(`${BASE_URL}/adoption/adopter`, {
+        headers:{
+            Authorization: `Bearer ${token}`
+        }  
     });
     return response.data
 }
