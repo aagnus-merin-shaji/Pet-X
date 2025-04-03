@@ -36,6 +36,7 @@ import AdopterProfile from "./pages/AdopterProfile";
 import AdopterAdoptions from "./pages/AdopterAdoptions";
 import ContractSign from "./pages/ContractSign";
 import AdopterMedicalDetails from "./pages/adopter/AdopterMedicalDetails";
+import LostFound from "./pages/adopter/LostFound";
 
 function App() {
   const { state } = useGlobalContext();
@@ -130,6 +131,7 @@ function App() {
         <Route path="/adopter-adoptions" element={<AdopterAdoptions />} />
         <Route path="/adopter/medical-details" element={<AdopterMedicalDetails />} />
         <Route path="/contract-sign" element={<ContractSign />} />
+        <Route path="/adopter-lostfound" element={<LostFound />} />
 
         {/* Admin Routes */}
         <Route path="/admin/dashboard" element={<Admindashbaordpage />} />

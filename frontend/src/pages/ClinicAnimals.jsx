@@ -12,20 +12,23 @@ const ClinicAnimals = () => {
     };
 
     const handleMedicalDetails = (pet) => {
-        navigate("/clinic/animals/medical-details", { state: { pet } }); // Navigate to medical details form
+        navigate("/clinic/animals/medical-details", { state: { pet } });
     };
 
     const { data, isLoading, isError, error } = useQuery({
         queryFn: animalsviewallAPI,
         queryKey: ['animal-view']
     });
+    
     if (isLoading) return <div>Loading...</div>;
     if (isError) return <div>Error: {error.message}</div>;
-    const animals=data.animals
+    
+    const animals = data.animals;
+
     return (
         <div style={styles.grid}>
             {animals.map((animal) => (
-                <div key={animal.id} style={styles.card}>
+                <div key={animal._id} style={styles.card}>
                     <div style={styles.cardContent}>
                         <h2 style={styles.animalName}>{animal.name}</h2>
                         <p style={styles.animalInfo}>Breed: {animal.breed}</p>
@@ -38,16 +41,18 @@ const ClinicAnimals = () => {
                     </div>
                     <img src={animal.photos} alt={animal.name} style={styles.animalphotos} />
                     <div style={styles.cardContent}>
-                        {expandedId === animal.id && (
-                            <p style={styles.moreInfo}>
-                                <strong>Medical History:</strong> {animal.medicalHistory}
-                            </p>
-                        )}
+                        <p style={styles.moreInfo}>
+                            {expandedId === animal._id && (
+                                <>
+                                    <strong>Description:</strong> {animal.description}
+                                </>
+                            )}
+                        </p>
                         <button
                             style={styles.readMoreButton}
-                            onClick={() => toggleReadMore(animal.id)}
+                            onClick={() => toggleReadMore(animal._id)}
                         >
-                            {expandedId === animal.id ? "Read Less" : "Read More"}
+                            {expandedId === animal._id ? "Read Less" : "Read More"}
                         </button>
                         <button
                             style={styles.medicalDetailsButton}
@@ -62,7 +67,7 @@ const ClinicAnimals = () => {
     );
 };
 
-// Inline styles (same as before)
+// Inline styles
 const styles = {
     grid: {
         display: 'grid',
@@ -105,6 +110,7 @@ const styles = {
     moreInfo: {
         marginTop: '8px',
         color: '#2d3748',
+        minHeight: '24px' // Prevents layout shift when toggling
     },
     readMoreButton: {
         width: '100%',

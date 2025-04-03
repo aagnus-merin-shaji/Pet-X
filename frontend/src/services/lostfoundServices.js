@@ -1,10 +1,14 @@
 import axios from "axios";
 import { BASE_URL } from "../utils/url";
-import { getUserData } from "../utils/storageHandler";
+import { getToken } from "../utils/storageHandler";
 
-export const lostfoundaddAPI= async(data)=>{
+const token = getToken()
+
+export const lostaddAPI= async(data)=>{
     const response = await axios.post(`${BASE_URL}/lostfound/add`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+        headers:{
+            Authorization: `Bearer ${token}`
+        }   // Make sure credentials (cookies) are sent
     });
     return response.data
 }

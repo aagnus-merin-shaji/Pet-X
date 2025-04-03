@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query'; // Changed to consistent import
+import { useQuery } from '@tanstack/react-query';
 import { animalsviewallAPI } from '../../services/animalServices';
 
 const Animals = () => {
@@ -22,13 +22,12 @@ const Animals = () => {
 
     if (isLoading) return <div>Loading...</div>;
     if (isError) return <div>Error: {error.message}</div>;
-    const pets=data.animals
-    
+    const pets = data.animals;
 
     return (
         <div style={styles.grid}>
             {pets.map((pet) => (
-                <div key={pet.id} style={styles.card}>
+                <div key={pet._id} style={styles.card}>
                     <div style={styles.cardContent}>
                         <h2 style={styles.petName}>{pet.name}</h2>
                         <p style={styles.petInfo}>Breed: {pet.breed}</p>
@@ -41,20 +40,22 @@ const Animals = () => {
                     </div>
                     <img src={pet.photos} alt={pet.name} style={styles.petImage} />
                     <div style={styles.cardContent}>
-                        {expandedId === pet.id && (
-                            <p style={styles.moreInfo}>
-                                <strong>Medical History:</strong> {pet.medicalHistory}
-                            </p>
-                        )}
+                        <p style={styles.moreInfo}>
+                            {expandedId === pet._id && (
+                                <>
+                                    <strong>Description:</strong> {pet.description}
+                                </>
+                            )}
+                        </p>
                         <button
                             style={styles.readMoreButton}
-                            onClick={() => toggleReadMore(pet.id)}
+                            onClick={() => toggleReadMore(pet._id)}
                         >
-                            {expandedId === pet.id ? "Read Less" : "Read More"}
+                            {expandedId === pet._id ? "Read Less" : "Read More"}
                         </button>
                         <button
                             style={styles.medicalDetailsButton}
-                            onClick={() => handleMedicalDetails(pet)} // Pass the pet object to handleMedicalDetails
+                            onClick={() => handleMedicalDetails(pet)}
                         >
                             Medical Details
                         </button>
@@ -65,7 +66,7 @@ const Animals = () => {
     );
 }
 
-// Inline styles
+// Rest of your styles remain exactly the same
 const styles = {
     grid: {
         display: 'grid',
@@ -108,6 +109,7 @@ const styles = {
     moreInfo: {
         marginTop: '8px',
         color: '#2d3748',
+        minHeight: '24px' // Added to prevent layout shift
     },
     readMoreButton: {
         width: '100%',

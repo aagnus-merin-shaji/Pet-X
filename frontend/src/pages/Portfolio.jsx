@@ -15,149 +15,137 @@ const Portfolio = () => {
         queryKey: ['animal-view']
     });
     
-    const { mutateAsync, isPending, } = useMutation({
-        mutationFn: adoptionaddAPI, // Ensure this function is defined in userServices.js
+    const { mutateAsync, isPending } = useMutation({
+        mutationFn: adoptionaddAPI,
         mutationKey: ["add-request"],
-      });
+    });
     
-      const { data:matches } = useQuery({
+    const { data: matches } = useQuery({
         queryFn: adoptionmatchesAPI,
         queryKey: ['animal-matches']
     });
-      const userId = useSelector((state) => state.user.id);
-      console.log(userId);
+    
+    const userId = useSelector((state) => state.user.id);
 
     const toggleReadMore = (id) => {
         setExpandedId(expandedId === id ? null : id);
     };
 
-    const handleAdoptClick = async(pet) => {
-        console.log("clicked");
-        
-       await mutateAsync(pet)
-        navigate('/adopter-adoptions', { state: { pet } });
+    const handleAdoptClick = async (petId) => {
+        await mutateAsync(petId);
+        navigate('', { state: { petId } });
     };
 
     const handleMedicalViewClick = (pet) => {
-        console.log(pet._id);
-        
         navigate('/adopter/medical-details', { state: { pet: pet._id } });
     };
 
     if (isLoading) return <div style={styles.loading}>Loading pets...</div>;
     if (isError) return <div style={styles.error}>Error: {error.message}</div>;
-    const pets=data.animals
-    console.log(matches);
     
+    const pets = data.animals;
+
     return (
         <>
-        <div>
-        <h1>
-      <FaStar style={{ marginRight: "10px", verticalAlign: "middle" }} />
-
-      Suggested for You
-    </h1> 
-    <div style={styles.grid}>
-            
-            {matches?.map((animal) => (
-                <div key={animal.pet._id || animal.pet.id} style={styles.card}>
-                    <div style={styles.cardContent}>
-                        <h2 style={styles.petName}>{animal.pet.name}</h2>
-                        <p style={styles.petInfo}>Breed: {animal.pet.breed}</p>
-                        <p style={styles.petInfo}>Age: {animal.pet.age}</p>
-                        <p style={animal.pet.vaccinated ? styles.vaccinated : styles.notVaccinated}>
-                            {animal.pet.vaccinated ? "Vaccinated ✅" : "Not Vaccinated ❌"}
-                        </p>
-                        <p style={styles.petInfo}>Size: {animal.pet.size}</p>
-                        <p style={styles.petInfo}>Adoption Fee: {animal.pet.adoptionFee}</p>
-                    </div>
-                    <img src={animal.pet.photos} alt={animal.pet.name} style={styles.petphotos} />
-                    <div style={styles.cardContent}>
-                        <p style={styles.petInfo}>Status: {animal.pet.status}</p>
-                        {expandedId === animal.pet.id && (
-                            <p style={styles.moreInfo}>
-                                <strong>Medical History:</strong> {pet.medicalHistory}
+            <div>
+                <h1>
+                    <FaStar style={{ marginRight: "10px", verticalAlign: "middle" }} />
+                    Suggested for You
+                </h1> 
+                <div style={styles.grid}>
+                    {matches?.map((animal) => (
+                        <div key={animal.pet._id} style={styles.card}>
+                            <div style={styles.cardContent}>
+                                <h2 style={styles.petName}>{animal.pet.name}</h2>
+                                <p style={styles.petInfo}>Breed: {animal.pet.breed}</p>
+                                <p style={styles.petInfo}>Age: {animal.pet.age}</p>
+                                <p style={animal.pet.vaccinated ? styles.vaccinated : styles.notVaccinated}>
+                                    {animal.pet.vaccinated ? "Vaccinated ✅" : "Not Vaccinated ❌"}
+                                </p>
+                                <p style={styles.petInfo}>Size: {animal.pet.size}</p>
+                                <p style={styles.petInfo}>Adoption Fee: {animal.pet.adoptionFee}</p>
+                            </div>
+                            <img src={animal.pet.photos} alt={animal.pet.name} style={styles.petphotos} />
+                            <div style={styles.cardContent}>
+                                <p style={styles.petInfo}>Status: {animal.pet.status}</p>
+                                {expandedId === animal.pet._id && (
+                                    <p style={styles.moreInfo}>
+                                        <strong>Description:</strong> {animal.pet.description}
+                                    </p>
+                                )}
+                                <button
+                                    style={styles.readMoreButton}
+                                    onClick={() => toggleReadMore(animal.pet._id)}
+                                >
+                                    {expandedId === animal.pet._id ? "Read Less" : "Read More"}
+                                </button>
+                                <button
+                                    style={styles.adoptButton}
+                                    onClick={() => handleAdoptClick(animal.pet._id)}
+                                >
+                                    Adopt
+                                </button>
+                                <button
+                                    style={styles.medicalViewButton}
+                                    onClick={() => handleMedicalViewClick(animal.pet)}
+                                >
+                                    Medical View
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>       
+            </div>
+            <h1>Other Animals</h1>
+            <div style={styles.grid}>
+                {pets.map((pet) => (
+                    <div key={pet._id} style={styles.card}>
+                        <div style={styles.cardContent}>
+                            <h2 style={styles.petName}>{pet.name}</h2>
+                            <p style={styles.petInfo}>Breed: {pet.breed}</p>
+                            <p style={styles.petInfo}>Age: {pet.age}</p>
+                            <p style={pet.vaccinated ? styles.vaccinated : styles.notVaccinated}>
+                                {pet.vaccinated ? "Vaccinated ✅" : "Not Vaccinated ❌"}
                             </p>
-                        )}
-                        <button
-                            style={styles.readMoreButton}
-                            onClick={() => toggleReadMore(animal.pet._id || animal.pet.id)}
-                        >
-                            {expandedId === animal.pet._id ? "Read Less" : "Read More"}
-                        </button>
-                        <button
-    style={styles.adoptButton}
-    onClick={() => {
-        handleAdoptClick(animal.pet._id); // Your existing adoption function
-    }}
->
-    Adopt
-</button>
-                        <button
-                            style={styles.medicalViewButton}
-                            onClick={() => handleMedicalViewClick(animal.pet)}
-                        >
-                            Medical View
-                        </button>
+                            <p style={styles.petInfo}>Size: {pet.size}</p>
+                            <p style={styles.petInfo}>Adoption Fee: {pet.adoptionFee}</p>
+                        </div>
+                        <img src={pet.photos} alt={pet.name} style={styles.petphotos} />
+                        <div style={styles.cardContent}>
+                            <p style={styles.petInfo}>Status: {pet.status}</p>
+                            {expandedId === pet._id && (
+                                <p style={styles.moreInfo}>
+                                    <strong>Description:</strong> {pet.description}
+                                </p>
+                            )}
+                            <button
+                                style={styles.readMoreButton}
+                                onClick={() => toggleReadMore(pet._id)}
+                            >
+                                {expandedId === pet._id ? "Read Less" : "Read More"}
+                            </button>
+                            <button
+                                style={styles.adoptButton}
+                                onClick={() => handleAdoptClick(pet._id)}
+                            >
+                                Adopt
+                            </button>
+                            <button
+                                style={styles.medicalViewButton}
+                                onClick={() => handleMedicalViewClick(pet)}
+                            >
+                                Medical View
+                            </button>
+                        </div>
                     </div>
-                </div>
-            ))}
-        </div>       
-    </div>
-        <h1>Other Animals</h1>
-        <div style={styles.grid}>
-            
-            {pets.map((pet) => (
-                <div key={pet._id || pet.id} style={styles.card}>
-                    <div style={styles.cardContent}>
-                        <h2 style={styles.petName}>{pet.name}</h2>
-                        <p style={styles.petInfo}>Breed: {pet.breed}</p>
-                        <p style={styles.petInfo}>Age: {pet.age}</p>
-                        <p style={pet.vaccinated ? styles.vaccinated : styles.notVaccinated}>
-                            {pet.vaccinated ? "Vaccinated ✅" : "Not Vaccinated ❌"}
-                        </p>
-                        <p style={styles.petInfo}>Size: {pet.size}</p>
-                        <p style={styles.petInfo}>Adoption Fee: {pet.adoptionFee}</p>
-                    </div>
-                    <img src={pet.photos} alt={pet.name} style={styles.petphotos} />
-                    <div style={styles.cardContent}>
-                        <p style={styles.petInfo}>Status: {pet.status}</p>
-                        {expandedId === pet.id && (
-                            <p style={styles.moreInfo}>
-                                <strong>Medical History:</strong> {pet.medicalHistory}
-                            </p>
-                        )}
-                        <button
-                            style={styles.readMoreButton}
-                            onClick={() => toggleReadMore(pet._id || pet.id)}
-                        >
-                            {expandedId === pet._id ? "Read Less" : "Read More"}
-                        </button>
-                        <button
-    style={styles.adoptButton}
-    onClick={() => {
-        handleAdoptClick(pet._id); // Your existing adoption function
-    }}
->
-    Adopt
-</button>
-                        <button
-                            style={styles.medicalViewButton}
-                            onClick={() => handleMedicalViewClick(pet)}
-                        >
-                            Medical View
-                        </button>
-                    </div>
-                </div>
-            ))}
-        </div>
+                ))}
+            </div>
         </>
     );
-    
 };
 
-// Add these new styles to your existing styles object
 const styles = {
+    // ... (keep all your existing styles exactly the same)
     grid: {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
@@ -199,6 +187,7 @@ const styles = {
     moreInfo: {
         marginTop: '8px',
         color: '#2d3748',
+        minHeight: '24px' // Added to prevent layout shift
     },
     readMoreButton: {
         width: '100%',
@@ -230,6 +219,17 @@ const styles = {
         cursor: 'pointer',
         marginTop: '8px',
     },
+    loading: {
+        textAlign: 'center',
+        padding: '20px',
+        fontSize: '18px'
+    },
+    error: {
+        textAlign: 'center',
+        padding: '20px',
+        fontSize: '18px',
+        color: 'red'
+    }
 };
 
 export default Portfolio;

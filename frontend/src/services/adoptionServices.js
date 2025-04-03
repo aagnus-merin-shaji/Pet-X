@@ -14,16 +14,15 @@ export const adoptionaddAPI= async(data)=>{
     return response.data
 }
 
-export const adoptioneditAPI= async(data)=>{
+export const adoptioneditAPI = async (data) => {
     console.log(data);
-    
-    const response = await axios.put(`${BASE_URL}/adoption/edit`,data, {
-        headers:{
-            Authorization: `Bearer ${token}`
-        } // Make sure credentials (cookies) are sent
+    const response = await axios.put(`${BASE_URL}/adoption/edit`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
-    return response.data
-}
+    return response.data;
+  };
 
 export const adoptionviewallAPI= async()=>{
     const response = await axios.get(`${BASE_URL}/adoption/viewall`, {

@@ -34,6 +34,7 @@ export const  userSlice= createSlice({
         state.id = null
         state.role = null
         state.isLogin = false
+       
       }
   }
 })

@@ -38,7 +38,7 @@ const dispatch = useDispatch();
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
       const token = await mutateAsync(values);   
-localStorage.setItem("userToken", token);
+sessionStorage.setItem("userToken", token);
 const decodedData = jwtDecode(token);
 dispatch(loginUserAction(decodedData));
 

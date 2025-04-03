@@ -2,61 +2,60 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { adoptioneditAPI, adoptionviewallAPI } from "../../services/adoptionServices";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const Adoptions = () => {
   const navigate = useNavigate();
- 
- const { mutateAsync, isPending, isError, error } = useMutation({
+  const queryClient = useQueryClient(); // Added for data refresh
+
+  const { mutateAsync, isPending, isError, error } = useMutation({
     mutationFn: adoptioneditAPI,
     mutationKey: ["request-accept"],
+    onSuccess: () => {
+      // Refresh data after successful mutation
+      queryClient.invalidateQueries({ queryKey: ["request-view"] });
+    },
   });
+
   const { data, isLoading } = useQuery({
     queryFn: adoptionviewallAPI,
-    queryKey: ['request-view']
-});
+    queryKey: ["request-view"],
+  });
 
-const [adoptionRequests, setAdoptionRequests] = useState([]);
+  const [adoptionRequests, setAdoptionRequests] = useState([]);
 
-useEffect(() => {
+  useEffect(() => {
     if (data?.applications) {
-        setAdoptionRequests(data.applications);
+      setAdoptionRequests(data.applications);
     }
-}, [data]); // Runs whenever `data` changes
+  }, [data]);
 
-console.log(adoptionRequests);
-
+  console.log(adoptionRequests);
 
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [actionType, setActionType] = useState(""); // "accept" or "reject"
+  const [actionType, setActionType] = useState(""); // "Approved" or "Rejected"
 
   // Handle adoption request status (Accept/Reject)
   const handleAdoptionStatus = async (id, status) => {
     try {
-      // Call the API mutation
-      await mutateAsync({ requestId: id, status });
-      
-      // Update local state only after successful API call
-      
-      setShowModal(false);
+      await mutateAsync({ id, adoptionStatus: status }); // Match backend expected params
+      setShowModal(false); // Close modal after success
     } catch (error) {
       console.error("Failed to update adoption status:", error);
-      // Optionally show error to user
     }
   };
 
   // Handle contract button click
   const handleContract = (petId) => {
     console.log(`Proceeding to contract signing for pet ID: ${petId}`);
-    navigate("/contract-sign?signer=shelter"); // Redirect to Contract Signing page for shelter
+    navigate("/contract-sign?signer=shelter");
   };
 
-  // Open confirmation modal
-  const openConfirmationModal = async(id, type) => { 
-    await mutateAsync({id:id,adoptionStatus:type})
+  // Open confirmation modal (no API call here)
+  const openConfirmationModal = (id, type) => {
     setSelectedRequestId(id);
-    setActionType(type);
+    setActionType(type); // "Approved" or "Rejected"
     setShowModal(true);
   };
 
@@ -65,7 +64,6 @@ console.log(adoptionRequests);
       <h1>Adoption Requests</h1>
       <p>Manage adoption requests for animals in the shelter.</p>
 
-      {/* Adoption Requests List */}
       <AdoptionList>
         {adoptionRequests?.map((request) => (
           <AdoptionCard key={request._id}>
@@ -81,10 +79,11 @@ console.log(adoptionRequests);
             </p>
             <p>
               <strong>Status:</strong>{" "}
-              <StatusBadge status={request.adoptionStatus}>{request.adoptionStatus}</StatusBadge>
+              <StatusBadge status={request.adoptionStatus}>
+                {request.adoptionStatus}
+              </StatusBadge>
             </p>
 
-            {/* Accept, Reject, and Contract Buttons */}
             <ButtonGroup>
               <AcceptButton
                 onClick={() => openConfirmationModal(request._id, "Approved")}
@@ -109,26 +108,22 @@ console.log(adoptionRequests);
         ))}
       </AdoptionList>
 
-      {/* Confirmation Modal */}
       {showModal && (
         <ModalOverlay>
           <Modal>
             <h3>
-              Are you sure you want to {actionType} this adoption request?
+              Are you sure you want to {actionType.toLowerCase()} this adoption request?
             </h3>
             <p>This action cannot be undone.</p>
             <ModalButtonGroup>
-            <button
-    onClick={async () => {
-      await handleAdoptionStatus(
-        selectedRequestId, 
-        actionType === "accept" ? "Accepted" : "Rejected"
-      );
-    }}
-    disabled={isPending}
-  >
-    {isPending ? "Processing..." : "Confirm"}
-  </button>
+              <button
+                onClick={async () => {
+                  await handleAdoptionStatus(selectedRequestId, actionType);
+                }}
+                disabled={isPending}
+              >
+                {isPending ? "Processing..." : "Confirm"}
+              </button>
               <button onClick={() => setShowModal(false)}>Cancel</button>
             </ModalButtonGroup>
           </Modal>
@@ -138,7 +133,7 @@ console.log(adoptionRequests);
   );
 };
 
-// Styled Components
+// Styled Components (unchanged except for StatusBadge)
 const AdoptionsContainer = styled.div`
   padding: 2rem;
   max-width: 1200px;
@@ -176,13 +171,13 @@ const StatusBadge = styled.span`
   font-size: 0.875rem;
   font-weight: bold;
   background-color: ${({ status }) =>
-    status === "Accepted"
+    status === "Approved"
       ? "#d4edda"
       : status === "Rejected"
       ? "#f8d7da"
       : "#fff3cd"};
   color: ${({ status }) =>
-    status === "Accepted"
+    status === "Approved"
       ? "#155724"
       : status === "Rejected"
       ? "#721c24"

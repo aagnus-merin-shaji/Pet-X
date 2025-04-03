@@ -7,6 +7,7 @@ import { Logo, Menu, Cart } from "../icons/index";
 import { avatar } from "../assets/imagedata";
 import FloatingCart from "../components/FloatingCart";
 import { useGlobalContext } from "../context/context";
+import Logout from "../components/Logout";
 
 // Bell Icon Component
 const BellIcon = () => (
@@ -60,6 +61,7 @@ const NotificationTab = ({ notifications }) => (
 const navLinks = [
   { name: "home", path: "/home" },
   { name: "services", path: "/services" },
+  { name: "lost&found", path: "/adopter-lostfound" },
   { name: "animals", path: "/portfolio" },
   { name: "adoptions", path: "/adopter-adoptions" },
   { name: "contact", path: "/contact" },
@@ -79,8 +81,8 @@ const Navigator = () => {
 
   // Logout function
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userInfo");
+    sessionStorage.removeItem("authToken");
+    sessionStorage.removeItem("userInfo");
     navigate("/login");
   };
 
@@ -143,7 +145,7 @@ const Navigator = () => {
               </motion.li>
             ))}
           </ul>
-        </div>
+        </div><br/>
         <div className="nav-right">
           {/* Notification Button */}
           <div className="notification-container">
@@ -201,14 +203,16 @@ const Navigator = () => {
           </motion.button>
 
           {/* Logout Button */}
-          <motion.button
+          {/* <motion.button
             className="logout-btn"
             onClick={handleLogout}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
             Logout
-          </motion.button>
+          </motion.button> */}
+
+          <Logout/>
 
           {/* Floating Cart */}
           <FloatingCart className={`${state.showingCart ? "active" : ""}`} />

@@ -47,7 +47,7 @@ const ShelterRegister = () => {
     onSubmit: async (values, { resetForm }) => {
       try {
         const token = await mutateAsync(values);   
-        localStorage.setItem("userToken", token);
+        sessionStorage.setItem("userToken", token);
         const decodedData = jwtDecode(token);
         dispatch(loginUserAction(decodedData));
           resetForm(); // Reset the form
