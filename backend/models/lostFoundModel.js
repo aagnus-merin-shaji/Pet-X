@@ -2,21 +2,18 @@ const mongoose = require('mongoose');
 
 const lostFoundSchema = new mongoose.Schema({
     animal: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Animal', 
-        required: true 
+        type: String 
     },
     lastSeenLocation: { 
         type: String, 
         required: true 
     },
-    lastSeenCoordinates: { 
-        type: { lat: Number, lng: Number },
-        required: true 
-    },
     dateLostOrFound: { 
         type: Date, 
         required: true 
+    },
+    animalType:{
+        type:String,
     },
     contact: { 
         type: String, 

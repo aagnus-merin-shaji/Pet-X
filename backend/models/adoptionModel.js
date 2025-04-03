@@ -19,7 +19,7 @@ const adoptionSchema = new mongoose.Schema({
     shelterId: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Shelter', 
-        required: true // Reference to the shelter managing the adoption
+         // Reference to the shelter managing the adoption
     },
     
 }, { timestamps: true });

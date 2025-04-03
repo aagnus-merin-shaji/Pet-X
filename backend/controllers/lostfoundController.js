@@ -4,17 +4,12 @@ const Notification = require('../models/notificationModel');
 
 const lostFoundController = {
     createReport: asyncHandler(async (req, res) => {
-        const { animal, lastSeenLocation, lastSeenCoordinates, dateLostOrFound, contact } = req.body;
-
-        if (!animal || !lastSeenLocation || !lastSeenCoordinates || !dateLostOrFound || !contact) {
-            res.status(400);
-            throw new Error('All fields are required');
-        }
+        const { animal,animalType, lastSeenLocation, dateLostOrFound, contact } = req.body;
 
         const report = await LostFound.create({
             animal,
+            animalType,
             lastSeenLocation,
-            lastSeenCoordinates,
             dateLostOrFound,
             contact,
         });
