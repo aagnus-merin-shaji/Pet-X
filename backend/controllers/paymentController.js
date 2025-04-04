@@ -2,7 +2,8 @@ const asyncHandler = require("express-async-handler");
 const Payment = require("../models/paymentModel");
 const Stripe = require("stripe");
 const Adoption = require("../models/adoptionModel");
-// const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+const Animal = require("../models/animalModel");
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 require("dotenv").config();
 
 const paymentController = {
@@ -43,20 +44,25 @@ const paymentController = {
 
     // Process payment using Stripe
     processPayment: asyncHandler(async (req, res) => {
-        const { id, currency } = req.body;
-        const payment = await Payment.findById(id);
+        const { id } = req.body;
+        const adoption=await Adoption.findById(id)
+        adoption.paymentStatus='completed'
+        await adoption.save()
+        const animal=await Animal.findById(adoption.animalId)
 
-        if (!payment) {
-            res.status(404);
-            throw new Error("Payment not found");
-        }
+        const payment = await Payment.create({
+            adoptionId:id,
+            adopterId:req.user.id,
+            amount:animal.adoptionFee,
+            paymentStatus:"completed"
+        });
 
         try {
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: payment.amount * 100,
-                currency: currency || "usd",
+                currency: "usd",
                 metadata: {
-                    adopterId: payment.adopterId,
+                    adopterId: payment.adopterId.toString(),
                 },
             });
 

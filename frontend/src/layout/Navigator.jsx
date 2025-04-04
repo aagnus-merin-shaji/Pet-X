@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { motion, AnimatePresence } from "framer-motion"; // Import Framer Motion
+import { motion, AnimatePresence } from "framer-motion";
 import { Logo, Menu, Cart } from "../icons/index";
 import { avatar } from "../assets/imagedata";
 import FloatingCart from "../components/FloatingCart";
@@ -57,11 +57,17 @@ const NotificationTab = ({ notifications }) => (
   </NotificationTabWrapper>
 );
 
-// Navigation Links
+// Navigation Links with dropdown for lostpets
 const navLinks = [
   { name: "home", path: "/home" },
   { name: "services", path: "/services" },
-  { name: "lost&found", path: "/adopter-lostfound" },
+  { 
+    name: "lostpets", 
+    path: "/adopter-lostfound",
+    subItems: [
+      { name: "view lost pets", path: "/adopter-lostfoundview" },
+    ]
+  },
   { name: "animals", path: "/portfolio" },
   { name: "adoptions", path: "/adopter-adoptions" },
   { name: "contact", path: "/contact" },
@@ -71,7 +77,8 @@ const Navigator = () => {
   const { showSidebar, showCart, hideCart, state } = useGlobalContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showBubble, setShowBubble] = useState(false); // State for black bubble
+  const [showBubble, setShowBubble] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleSearch = (e) => {
@@ -79,24 +86,21 @@ const Navigator = () => {
     console.log("Search query:", searchQuery);
   };
 
-  // Logout function
   const handleLogout = () => {
     sessionStorage.removeItem("authToken");
     sessionStorage.removeItem("userInfo");
     navigate("/login");
   };
 
-  // Dummy notifications data
   const notifications = [
     { message: "Your order has been shipped.", time: "2 hours ago", read: false },
     { message: "New product available in collections.", time: "5 hours ago", read: true },
     { message: "Flash sale starts in 1 hour.", time: "1 day ago", read: false },
   ];
 
-  // Toggle black bubble
   const toggleBubble = () => {
     setShowBubble(true);
-    setTimeout(() => setShowBubble(false), 1000); // Hide bubble after 1 second
+    setTimeout(() => setShowBubble(false), 1000);
   };
 
   return (
@@ -121,7 +125,7 @@ const Navigator = () => {
           <form onSubmit={handleSearch} className="search-bar">
             <motion.input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search pets..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               whileFocus={{ scale: 1.05 }}
@@ -140,19 +144,44 @@ const Navigator = () => {
                 key={idx}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
+                onMouseEnter={() => link.subItems && setDropdownOpen(true)}
+                onMouseLeave={() => link.subItems && setDropdownOpen(false)}
               >
-                <Link to={link.path}>{link.name}</Link>
+                {link.subItems ? (
+                  <div className="dropdown-container">
+                    <Link to={link.path}>{link.name}</Link>
+                    {dropdownOpen && (
+                      <motion.ul
+                        className="dropdown-menu"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                      >
+                        {link.subItems.map((subItem, subIdx) => (
+                          <motion.li
+                            key={subIdx}
+                            whileHover={{ scale: 1.05 }}
+                          >
+                            <Link to={subItem.path}>{subItem.name}</Link>
+                          </motion.li>
+                        ))}
+                      </motion.ul>
+                    )}
+                  </div>
+                ) : (
+                  <Link to={link.path}>{link.name}</Link>
+                )}
               </motion.li>
             ))}
           </ul>
-        </div><br/>
+        </div>
+        <br/>
         <div className="nav-right">
-          {/* Notification Button */}
           <div className="notification-container">
             <motion.button
               onClick={() => {
                 setShowNotifications(!showNotifications);
-                toggleBubble(); // Trigger black bubble
+                toggleBubble();
               }}
               className="notification-btn"
               whileHover={{ scale: 1.1 }}
@@ -177,7 +206,6 @@ const Navigator = () => {
             </AnimatePresence>
           </div>
 
-          {/* Black Bubble Animation */}
           <AnimatePresence>
             {showBubble && (
               <motion.div
@@ -192,7 +220,6 @@ const Navigator = () => {
             )}
           </AnimatePresence>
 
-          {/* Avatar */}
           <motion.button
             className="avatar-btn"
             onClick={() => navigate("/adopter-profile")}
@@ -202,19 +229,8 @@ const Navigator = () => {
             <img src={avatar} alt="avatar" />
           </motion.button>
 
-          {/* Logout Button */}
-          {/* <motion.button
-            className="logout-btn"
-            onClick={handleLogout}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            Logout
-          </motion.button> */}
-
           <Logout/>
 
-          {/* Floating Cart */}
           <FloatingCart className={`${state.showingCart ? "active" : ""}`} />
         </div>
       </nav>
@@ -222,7 +238,7 @@ const Navigator = () => {
   );
 };
 
-// Styled Components
+// Updated Styled Components with dropdown styles
 const NavigatorWrapper = styled.header`
   position: relative;
   padding: 2.4rem;
@@ -305,6 +321,8 @@ const NavigatorWrapper = styled.header`
         padding: 0;
 
         li {
+          position: relative;
+          
           a {
             text-decoration: none;
             font-size: 1.5rem;
@@ -314,6 +332,38 @@ const NavigatorWrapper = styled.header`
 
             &:hover {
               color: hsl(var(--black));
+            }
+          }
+
+          .dropdown-container {
+            position: relative;
+          }
+
+          .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: hsl(var(--white));
+            border: 1px solid hsl(var(--divider));
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            list-style: none;
+            padding: 0.5rem 0;
+            min-width: 180px;
+            z-index: 10;
+
+            li {
+              padding: 0.5rem 1rem;
+
+              a {
+                display: block;
+                font-size: 1.3rem;
+                padding: 0.5rem 0;
+              }
+
+              &:hover {
+                background-color: hsl(var(--light-gray));
+              }
             }
           }
         }
@@ -385,21 +435,6 @@ const NavigatorWrapper = styled.header`
 
       &:hover {
         border-color: hsl(var(--orange));
-      }
-    }
-
-    .logout-btn {
-      background: yellow;
-      border: none;
-      cursor: pointer;
-      color: hsl(var(--black));
-      font-size: 1rem;
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      transition: background-color 0.3s ease;
-
-      &:hover {
-        background-color: red;
       }
     }
   }

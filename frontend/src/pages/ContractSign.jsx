@@ -13,12 +13,7 @@ const ContractSign = () => {
 
   // Mock pet details (replace with actual data from your backend or state)
   const petDetails = {
-    name: "Buddy",
-    type: "Dog",
-    breed: "Golden Retriever",
-    age: "3 years",
-    shelter: "Happy Paws Shelter",
-    adoptionFee: "$200",
+   
   };
 
   // Mock contract terms (replace with actual terms)

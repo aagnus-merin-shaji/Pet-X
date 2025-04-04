@@ -10,7 +10,11 @@ const adoptionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Animal'
     },
-   
+    paymentStatus: { 
+        type: String, 
+        enum: ['pending', 'completed', 'failed', 'refunded'], 
+        default: 'pending' 
+    },
     adoptionStatus: { 
         type: String, 
         enum: ['Pending', 'Approved', 'Rejected'], 

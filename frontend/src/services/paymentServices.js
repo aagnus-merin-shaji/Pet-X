@@ -1,17 +1,23 @@
 import axios from "axios";
 import { BASE_URL } from "../utils/url";
-import { getUserData } from "../utils/storageHandler";
+import { getToken } from "../utils/storageHandler";
 
-export const paymentwebhookAPI= async(data)=>{
+const token = getToken()
+
+export const paymentAPI= async(data)=>{
     const response = await axios.post(`${BASE_URL}/payment/webhook`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+        headers:{
+            Authorization: `Bearer ${token}`
+        }  // Make sure credentials (cookies) are sent
     });
     return response.data
 }
 
 export const paymentcheckoutAPI= async(data)=>{
     const response = await axios.post(`${BASE_URL}/payment/checkout`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+        headers:{
+            Authorization: `Bearer ${token}`
+        }   // Make sure credentials (cookies) are sent
     });
     return response.data
 }

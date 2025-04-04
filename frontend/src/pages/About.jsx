@@ -1,60 +1,7 @@
-// import React from "react";
-// import styled from "styled-components";
-
-// const About = () => {
-//   return (
-//     <AboutWrapper>
-//       <h2>About Us</h2>
-//       <h3>A New Way For Working For Many Of Professionals.</h3>
-//       <p>
-//         Lorem Ipsum is simply dummy text of the printing and typesetting
-//         industry. Lorem Ipsum has been the industry’s standard dummy text ever
-//         since the 1500s, when an unknown printer took a galley of type and
-//         scrambled it to make a type specimen book.
-//       </p>
-//       <p>
-//         It has survived not only five centuries, but also the leap into
-//         electronic typesetting, remaining essentially unchanged. It was
-//         popularized in the 1960s with the release of Letraset sheets containing
-//         Lorem Ipsum passages, and more recently with desktop publishing software
-//         like Aldus PageMaker including versions of Lorem Ipsum.
-//       </p>
-//     </AboutWrapper>
-//   );
-// };
-
-// const AboutWrapper = styled.section`
-//   padding: 4rem 2rem;
-//   background-color: hsl(var(--light-grayish-blue));
-//   border-radius: 1rem;
-//   text-align: center;
-
-//   h2 {
-//     font-size: 2rem;
-//     color: hsl(var(--black));
-//     margin-bottom: 1rem;
-//   }
-
-//   h3 {
-//     font-size: 1.5rem;
-//     color: hsl(var(--dark-grayish-blue));
-//     margin-bottom: 1.5rem;
-//   }
-
-//   p {
-//     font-size: 1rem;
-//     color: hsl(var(--dark-grayish-blue));
-//     line-height: 1.6;
-//     margin-bottom: 1rem;
-//     text-align: left;
-//   }
-// `;
-
-// export default About;
 import React from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import about from "../assets/about.jpg"; // Import the new image for PetX
+import about from "../assets/about.jpg";
 
 const About = () => {
   return (
@@ -63,10 +10,13 @@ const About = () => {
       <AboutContent>
         <AboutImage src={about} alt="About PetX" />
         <AboutText>
-          <AboutHeading>About PetX</AboutHeading>
+          <AboutHeading>About <Highlight>PetX</Highlight></AboutHeading>
           <AboutDescription>
-            Your Trusted Pet 
-            Welcome to PetX, a next-generation platform dedicated to connecting pet lovers with everything they need for their furry friends. From pet adoption to pet supplies, grooming services, and veterinary care, PetX is your one-stop destination for all things pets. Our platform empowers pet owners, breeders, and service providers to connect seamlessly while ensuring a safe and enjoyable experience for all.
+            Your Trusted Pet Platform
+            <br /><br />
+            Welcome to PetX, a next-generation platform dedicated to connecting pet lovers with everything they need for their furry friends. From pet adoption to pet supplies, grooming services, and veterinary care, PetX is your one-stop destination for all things pets.
+            <br /><br />
+            Our platform empowers pet owners, breeders, and service providers to connect seamlessly while ensuring a safe and enjoyable experience for all.
           </AboutDescription>
         </AboutText>
       </AboutContent>
@@ -109,52 +59,40 @@ const About = () => {
   );
 };
 
-// Styled Components (unchanged)
+// Styled Components with attractive proportions
 const AboutWrapper = styled.div`
-  padding: 2rem;
+  padding: 3rem 2rem;
   font-family: "Kumbh Sans", sans-serif;
   background-color: hsl(var(--white));
-`;
-
-const NavBar = styled.nav`
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  padding: 1rem;
-  background-color: hsl(var(--light-grayish-blue));
-  border-bottom: 1px solid hsl(var(--divider));
-`;
-
-const NavLink = styled(Link)`
-  text-decoration: none;
-  font-size: 1.2rem;
-  color: hsl(var(--dark-grayish-blue));
-  transition: color 0.3s ease;
-
-  &:hover {
-    color: hsl(var(--orange));
-  }
+  max-width: 1400px;
+  margin: 0 auto;
 `;
 
 const AboutContent = styled.div`
   display: flex;
-  flex-direction: row;
   align-items: center;
-  gap: 4rem;
-  margin: 4rem auto;
+  gap: 5rem;
+  margin: 2rem auto 4rem;
   max-width: 1200px;
 
-  @media (max-width: 768px) {
+  @media (max-width: 992px) {
     flex-direction: column;
+    gap: 3rem;
     text-align: center;
   }
 `;
 
 const AboutImage = styled.img`
   width: 100%;
-  max-width: 400px; // Increased image size
-  border-radius: 1rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  object-fit: cover;
+  aspect-ratio: 1/1;
+
+  @media (max-width: 992px) {
+    max-width: 400px;
+  }
 `;
 
 const AboutText = styled.div`
@@ -162,17 +100,26 @@ const AboutText = styled.div`
 `;
 
 const AboutHeading = styled.h1`
-  font-size: 2.5rem; // Increased heading size
+  font-size: 2.8rem;
   color: hsl(var(--black));
   margin-bottom: 1.5rem;
-  font-weight: 700;
+  font-weight: 800;
+  line-height: 1.2;
+
+  @media (max-width: 768px) {
+    font-size: 2.2rem;
+  }
 `;
 
 const AboutDescription = styled.p`
-  font-size: 2.2rem; // Increased text size
+  font-size: 1.2rem;
   color: hsl(var(--dark-grayish-blue));
   line-height: 1.8;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const Highlight = styled.span`
@@ -181,46 +128,45 @@ const Highlight = styled.span`
 `;
 
 const BoxContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2.5rem;
   margin: 4rem auto;
   max-width: 1200px;
 `;
 
 const Box = styled.div`
   background-color: hsl(var(--white));
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 280px;
+  padding: 2.2rem 1.8rem;
+  border-radius: 16px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
   text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
+  border: 1px solid hsl(var(--divider));
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    border-color: hsl(var(--orange));
   }
 `;
 
 const BoxIcon = styled.div`
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+  font-size: 2.8rem;
+  margin-bottom: 1.2rem;
 `;
 
 const BoxTitle = styled.h2`
   font-size: 1.5rem;
   color: hsl(var(--black));
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
   font-weight: 700;
 `;
 
 const BoxText = styled.p`
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: hsl(var(--dark-grayish-blue));
-  line-height: 1.6;
+  line-height: 1.7;
 `;
 
 export default About;

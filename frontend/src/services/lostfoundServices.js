@@ -21,8 +21,10 @@ export const lostfoundeditAPI= async()=>{
 }
 
 export const lostfoundviewallAPI= async()=>{
-    const response = await axios.get(`${BASE_URL}/lostfound/viewall`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+    const response = await axios.get(`${BASE_URL}/lostfound/viewall`, {
+        headers:{
+            Authorization: `Bearer ${token}`
+        }  // Make sure credentials (cookies) are sent
     });
     return response.data
 }
