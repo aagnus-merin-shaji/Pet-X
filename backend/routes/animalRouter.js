@@ -7,7 +7,8 @@ const animalRoutes = express.Router();
 animalRoutes.post("/add", userAuthentication,upload.fields([{ name: "photos", maxCount: 1 }]),animalController.createListing);
 animalRoutes.put("/edit", userAuthentication,animalController.updateListing);
 animalRoutes.get("/viewall", userAuthentication,animalController.getAllListings);
-animalRoutes.get("/search", userAuthentication,animalController.getAnimalsByQuery);
+animalRoutes.get("/search/", userAuthentication,animalController.getAnimalsByQuery);
+animalRoutes.get("/view/:id", userAuthentication,animalController.getAnimal);
 animalRoutes.delete("/delete", userAuthentication,animalController.deleteListing);
 
 module.exports = animalRoutes;

@@ -49,7 +49,7 @@ const Adoptions = () => {
   // Handle contract button click
   const handleContract = (petId) => {
     console.log(`Proceeding to contract signing for pet ID: ${petId}`);
-    navigate("/contract-sign?signer=shelter");
+    navigate("/contract-sign",{ state: {petId} });
   };
 
   // Open confirmation modal (no API call here)
@@ -98,7 +98,7 @@ const Adoptions = () => {
                 Reject
               </RejectButton>
               <ContractButton
-                onClick={() => handleContract(request._id)}
+                onClick={() => handleContract(request.animalId._id)}
                 disabled={request.adoptionStatus !== "Approved"}
               >
                 Sign Contract

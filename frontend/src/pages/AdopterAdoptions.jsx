@@ -22,7 +22,7 @@ const AdopterAdoptions = () => {
 
     const handleContract = (petId) => {
         console.log(`Proceeding to contract signing for pet ID: ${petId}`);
-        navigate("/contract-sign");
+        navigate("/contract-sign",{ state: {petId} });
     };
 
     const handleViewContract = (petId) => {
@@ -53,7 +53,7 @@ const AdopterAdoptions = () => {
                                 </button>
                                 <button
                                     className="contract-button"
-                                    onClick={() => handleContract(pet._id)}
+                                    onClick={() => handleContract(pet.animalId)}
                                     disabled={pet.paymentStatus !== "completed"} // Enable if completed
                                 >
                                     Sign Contract
@@ -63,7 +63,7 @@ const AdopterAdoptions = () => {
                         {isContractSignedByAdopter && (
                             <button
                                 className="view-contract-button"
-                                onClick={() => handleViewContract(pet._id)}
+                                onClick={() => handleViewContract(pet.animalId)}
                             >
                                 View Contract
                             </button>

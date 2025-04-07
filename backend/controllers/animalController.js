@@ -28,6 +28,14 @@ const animalController = {
         res.json({ animals });
     }),
 
+    getAnimal: asyncHandler(async (req, res) => {
+        const {id}=req.params
+        console.log(id);
+        
+        const animals = await Animal.findById(id);
+        res.send(animals);
+    }),
+
     // Fetch details of a single pet by ID
     getAnimalsByQuery: asyncHandler(async (req, res) => {
         const { search } = req.body;

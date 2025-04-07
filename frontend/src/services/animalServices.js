@@ -29,10 +29,16 @@ export const animalsviewallAPI= async()=>{
     return response.data
 }
 
-export const animalssearchAPI= async()=>{
-    const response = await axios.get(`${BASE_URL}/animals/search`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+export const animalbyidAPI= async(data)=>{
+    console.log(data);
+    
+    const response = await axios.get(`${BASE_URL}/animals/view/${data}`, {
+        headers:{
+            Authorization: `Bearer ${token}`
+        } // Make sure credentials (cookies) are sent
     });
+    console.log(response);
+    
     return response.data
 }
 

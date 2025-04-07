@@ -1,59 +1,71 @@
-import React, { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
+import { animalbyidAPI } from "../services/animalServices";
+import { contractaddAPI } from "../services/adoptionContractServices";
 
 const ContractSign = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { petId } = location.state || {};
   const queryParams = new URLSearchParams(location.search);
-  const signer = queryParams.get("signer"); // "adopter" or "shelter"
-
+  const [signer,setSigner] =useState("")
   // State for signature
-  const [signature, setSignature] = useState("");
+  
 
-  // Mock pet details (replace with actual data from your backend or state)
-  const petDetails = {
-   
-  };
+  useEffect(() => {
+    console.log("Location state:", location.state);
+    console.log("petId from location:", petId);
+  }, [location]);
+const id=petId._id
+
+  const { data: animal, isLoading, error } = useQuery({
+    queryFn: () => animalbyidAPI(id), // Pass ID and token
+    queryKey: ["contract-view", petId],
+    enabled: !!petId // Only run query if petId ID exists
+  });
+console.log(animal);
+
+ const { mutateAsync, isPending, isError,  } = useMutation({
+    mutationFn: contractaddAPI,
+    mutationKey: ["contract-add"],
+  });
 
   // Mock contract terms (replace with actual terms)
   const contractTerms = `
-    1. The adopter agrees to provide a safe and loving home for ${petDetails.name}.
-    2. The adopter agrees to cover all medical expenses for ${petDetails.name}.
-    3. The adopter agrees to return ${petDetails.name} to the shelter if unable to care for them.
+    1. The adopter agrees to provide a safe and loving home for ${animal?.name}.
+    2. The adopter agrees to cover all medical expenses for ${animal?.name}.
+    3. The adopter agrees to return ${animal?.name} to the shelter if unable to care for them.
     4. The shelter agrees to provide all necessary medical records and support.
   `;
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit =async (e) => {
     e.preventDefault();
-    if (!signature) {
+    if (!signer) {
       alert("Please enter your signature.");
       return;
-    }
+    }await mutateAsync()
 
-    console.log(`Contract signed by ${signer} with signature: ${signature}`);
+    console.log(`Contract signed by ${signer} with signature: ${signer}`);
     alert(`Contract signed successfully by ${signer}!`);
-
-    // Redirect based on the signer
-    navigate(signer === "adopter" ? "/adopter-adoptions" : "/shelter/adoptions");
+    
   };
 
   return (
     <ContractSignWrapper>
-      <h1>Pet Adoption Contract</h1>
+      <h1>petId Adoption Contract</h1>
       <p>You are signing the contract as the {signer}.</p>
 
-      {/* Pet Details */}
+      {/* petId Details */}
       <section>
         <h2>Pet Details</h2>
         <ul>
-          <li><strong>Name:</strong> {petDetails.name}</li>
-          <li><strong>Type:</strong> {petDetails.type}</li>
-          <li><strong>Breed:</strong> {petDetails.breed}</li>
-          <li><strong>Age:</strong> {petDetails.age}</li>
-          <li><strong>Shelter:</strong> {petDetails.shelter}</li>
-          <li><strong>Adoption Fee:</strong> {petDetails.adoptionFee}</li>
+          <li><strong>Name:</strong> {animal?.name}</li>
+          <li><strong>Breed:</strong> {animal?.breed}</li>
+          <li><strong>Age:</strong> {animal?.age}</li>
+          <li><strong>Adoption Fee:</strong> {animal?.adoptionFee}</li>
         </ul>
       </section>
 
@@ -69,8 +81,8 @@ const ContractSign = () => {
           Enter your full name as a signature:
           <input
             type="text"
-            value={signature}
-            onChange={(e) => setSignature(e.target.value)}
+            value={signer}
+            onChange={(e) => setSigner(e.target.value)}
             placeholder="Your full name"
             required
           />

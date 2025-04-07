@@ -361,11 +361,6 @@ const PetMedicalDetailsForm = () => {
           {isPending ? "Saving..." : "Save Details"}
         </button>
       </form>
-
-      {/* Print PDF Button */}
-      <button onClick={handlePrint} style={styles.printButton}>
-        Print PDF
-      </button>
     </div>
   );
 };

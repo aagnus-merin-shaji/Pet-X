@@ -1,10 +1,14 @@
 import axios from "axios";
 import { BASE_URL } from "../utils/url";
-import { getUserData } from "../utils/storageHandler";
+import { getToken } from "../utils/storageHandler";
 
+
+const token = getToken()
 export const contractaddAPI= async(data)=>{
     const response = await axios.post(`${BASE_URL}/contract/add`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+        headers:{
+            Authorization: `Bearer ${token}`,
+        }  // Make sure credentials (cookies) are sent
     });
     return response.data
 }
