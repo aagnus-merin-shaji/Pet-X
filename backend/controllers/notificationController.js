@@ -8,16 +8,8 @@ const notificationController = {
     }),
 
     markNotificationAsRead: asyncHandler(async (req, res) => {
-        const { id } = req.body;
-        const notification = await Notification.findById(id);
+        const notifications = await Notification.deleteMany({user:req.user.id});
 
-        if (!notification) {
-            throw new Error("Notification not found.");
-        }
-
-        notification.read = true;
-        await notification.save();
-        await notification.deleteOne();
         res.send("Notification marked as read.");
     }),
 

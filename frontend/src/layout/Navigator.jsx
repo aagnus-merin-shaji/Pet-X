@@ -8,6 +8,8 @@ import { avatar } from "../assets/imagedata";
 import FloatingCart from "../components/FloatingCart";
 import { useGlobalContext } from "../context/context";
 import Logout from "../components/Logout";
+import { markasreadAPI, notificationviewallAPI } from "../services/notificationServices";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // Bell Icon Component
 const BellIcon = () => (
@@ -28,7 +30,7 @@ const BellIcon = () => (
 );
 
 // Notification Tab Component
-const NotificationTab = ({ notifications }) => (
+const NotificationTab = ({ notifications, onMarkAllAsRead }) => (
   <NotificationTabWrapper
     as={motion.div}
     initial={{ opacity: 0, y: -20 }}
@@ -38,10 +40,10 @@ const NotificationTab = ({ notifications }) => (
   >
     <div className="notification-header">
       <h4>Notifications</h4>
-      <button>Mark all as read</button>
+      <button onClick={onMarkAllAsRead}>Mark all as read</button>
     </div>
     <ul className="notification-list">
-      {notifications.map((notification, idx) => (
+      {notifications?.map((notification, idx) => (
         <motion.li
           key={idx}
           className={notification.read ? "read" : "unread"}
@@ -56,7 +58,6 @@ const NotificationTab = ({ notifications }) => (
     </ul>
   </NotificationTabWrapper>
 );
-
 
 const navLinks = [
   { name: "home", path: "/home" },
@@ -80,6 +81,22 @@ const Navigator = () => {
   const [showBubble, setShowBubble] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { data: notifications, isLoading,
+
+ error } = useQuery({
+    queryFn: notificationviewallAPI,
+    queryKey: ["view-all"],
+  });
+
+  const markAsReadMutation = useMutation({
+    mutationFn: (id) => markasreadAPI({ id }),
+    mutationKey: ['markas-read'],
+    onSuccess: () => {
+      queryClient.invalidateQueries(['view-all']);
+    },
+  });
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -92,15 +109,20 @@ const Navigator = () => {
     navigate("/login");
   };
 
-  const notifications = [
-    { message: "Your order has been shipped.", time: "2 hours ago", read: false },
-    { message: "New product available in collections.", time: "5 hours ago", read: true },
-    { message: "Flash sale starts in 1 hour.", time: "1 day ago", read: false },
-  ];
-
   const toggleBubble = () => {
     setShowBubble(true);
     setTimeout(() => setShowBubble(false), 1000);
+  };
+
+  const handleMarkAllAsRead = () => {
+    if (notifications && notifications.length > 0) {
+      const unreadNotifications = notifications.filter(n => !n.read);
+      unreadNotifications.forEach(notification => {
+        if (notification.id) {  // Assuming each notification has an id
+          markAsReadMutation.mutate(notification.id);
+        }
+      });
+    }
   };
 
   return (
@@ -175,7 +197,6 @@ const Navigator = () => {
             ))}
           </ul>
         </div>
-        <br/>
         <div className="nav-right">
           <div className="notification-container">
             <motion.button
@@ -201,7 +222,10 @@ const Navigator = () => {
             </motion.button>
             <AnimatePresence>
               {showNotifications && (
-                <NotificationTab notifications={notifications} />
+                <NotificationTab 
+                  notifications={notifications || []}
+                  onMarkAllAsRead={handleMarkAllAsRead}
+                />
               )}
             </AnimatePresence>
           </div>
@@ -238,7 +262,7 @@ const Navigator = () => {
   );
 };
 
-// Updated Styled Components with dropdown styles
+// Styled Components
 const NavigatorWrapper = styled.header`
   position: relative;
   padding: 2.4rem;
