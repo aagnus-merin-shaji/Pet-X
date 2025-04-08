@@ -79,7 +79,8 @@ const adoptionController = {
 
         // Save the notification
         await notification.save();
-
+        pet.adopterId=req.user.id
+        pet.save()
         res.status(201).json({ 
             message: 'Adoption application created successfully', 
             application: newApplication 

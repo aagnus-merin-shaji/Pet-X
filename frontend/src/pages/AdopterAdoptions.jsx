@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useQuery } from "@tanstack/react-query";
 import { adoptionviewAPI } from "../services/adoptionServices";
+import { Navigator } from "../layout";
 
 const AdopterAdoptions = () => {
     const navigate = useNavigate();
@@ -31,47 +32,49 @@ const AdopterAdoptions = () => {
     };
 
     if (isLoading) return <div>Loading...</div>;
-
     return (
-        <AdopterAdoptionsWrapper>
-            <h1>Adopter Adoptions</h1>
-            <p>Here are the details of the pets you have ordered:</p>
-            <div className="pet-list">
-                {orderedPets?.map((pet) => (
-                    <div key={pet._id} className="pet-card">
-                        <h2>{pet.animalId?.name}</h2>
-                        <p><strong>Breed:</strong> {pet.animalId?.breed}</p>
-                        <p><strong>Status:</strong> {pet.adoptionStatus}</p>
-                        {pet.adoptionStatus === "Approved" && (
-                            <div className="button-group">
+        <>
+            <Navigator/> {/* Add the Navigator component here */}
+            <AdopterAdoptionsWrapper>
+                <h1>Adopter Adoptions</h1>
+                <p>Here are the details of the pets you have ordered:</p>
+                <div className="pet-list">
+                    {orderedPets?.map((pet) => (
+                        <div key={pet._id} className="pet-card">
+                            <h2>{pet.animalId?.name}</h2>
+                            <p><strong>Breed:</strong> {pet.animalId?.breed}</p>
+                            <p><strong>Status:</strong> {pet.adoptionStatus}</p>
+                            {pet.adoptionStatus === "Approved" && (
+                                <div className="button-group">
+                                    <button
+                                        className="payment-button"
+                                        onClick={() => handlePayment(pet._id)}
+                                        disabled={pet.paymentStatus === "completed"} // Disable if completed
+                                    >
+                                        Proceed to Payment
+                                    </button>
+                                    <button
+                                        className="contract-button"
+                                        onClick={() => handleContract(pet.animalId)}
+                                        disabled={pet.paymentStatus !== "completed"} // Enable if completed
+                                    >
+                                        Sign Contract
+                                    </button>
+                                </div>
+                            )}
+                            {isContractSignedByAdopter && (
                                 <button
-                                    className="payment-button"
-                                    onClick={() => handlePayment(pet._id)}
-                                    disabled={pet.paymentStatus === "completed"} // Disable if completed
+                                    className="view-contract-button"
+                                    onClick={() => handleViewContract(pet.animalId)}
                                 >
-                                    Proceed to Payment
+                                    View Contract
                                 </button>
-                                <button
-                                    className="contract-button"
-                                    onClick={() => handleContract(pet.animalId)}
-                                    disabled={pet.paymentStatus !== "completed"} // Enable if completed
-                                >
-                                    Sign Contract
-                                </button>
-                            </div>
-                        )}
-                        {isContractSignedByAdopter && (
-                            <button
-                                className="view-contract-button"
-                                onClick={() => handleViewContract(pet.animalId)}
-                            >
-                                View Contract
-                            </button>
-                        )}
-                    </div>
-                ))}
-            </div>
-        </AdopterAdoptionsWrapper>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </AdopterAdoptionsWrapper>
+        </>
     );
 };
 

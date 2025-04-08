@@ -391,7 +391,6 @@ console.log(totalanimal);
     { title: "Shelter Pets",  icon: "🐾",count:pets },
     { title: "Lost Pet Alerts", count: 45, icon: "🔔" },
     { title: "Adoption Requests", count: 120, icon: "🏡" },
-    { title: "Emergency Reports", count: 28, icon: "⚠" },
     { title: "Total Users", icon: "👥" ,count:total},
     { title: "Monthly Analytics", count: "View Report", icon: "📊" },
   ];
@@ -401,7 +400,7 @@ console.log(totalanimal);
     { title: "Users", subItems: ["View Users",] },
     { title: "Lost Pets", subItems: ["Reported Cases", "Found Pets"] },
     { title: "Adoptions", subItems: ["Approved Requests"] },
-    { title: "Reports", subItems: ["View Reports", "Analytics"] },
+    { title: "Reports", subItems: ["View Reports"] },
   ];
 
   return (

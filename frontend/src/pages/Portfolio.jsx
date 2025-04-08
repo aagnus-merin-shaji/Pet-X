@@ -33,9 +33,9 @@ const Portfolio = () => {
 
     const handleAdoptClick = async (petId) => {
         await mutateAsync(petId);
+        alert("You have chosen to adopt this pet! Please proceed to complete the adoption process.");
         navigate('', { state: { petId } });
     };
-
     const handleMedicalViewClick = (pet) => {
         navigate('/adopter/medical-details', { state: { pet: pet._id } });
     };

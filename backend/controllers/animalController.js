@@ -32,7 +32,7 @@ const animalController = {
         const {id}=req.params
         console.log(id);
         
-        const animals = await Animal.findById(id);
+        const animals = await Animal.findById(id).populate("adopterId");
         res.send(animals);
     }),
 

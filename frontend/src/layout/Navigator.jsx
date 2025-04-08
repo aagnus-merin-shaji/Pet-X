@@ -57,7 +57,7 @@ const NotificationTab = ({ notifications }) => (
   </NotificationTabWrapper>
 );
 
-// Navigation Links with dropdown for lostpets
+
 const navLinks = [
   { name: "home", path: "/home" },
   { name: "services", path: "/services" },

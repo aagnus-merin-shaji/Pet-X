@@ -1,92 +1,95 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Services = () => {
   const navigate = useNavigate();
+  const [expandedService, setExpandedService] = useState(null);
 
-  // Function to handle contact button click
-  const handleContactClick = (service) => {
-    // Navigate to a contact page or form, passing the service name as a parameter
-    navigate("/contact", { state: { service } });
+  // Service data with detailed descriptions
+  const services = [
+    {
+      id: 1,
+      title: "Pet Grooming",
+      shortDescription: "Professional grooming services including bathing, haircuts, nail trimming, and ear cleaning.",
+      detailedDescription: "Our professional pet grooming services include full-service baths, breed-specific haircuts, nail trimming and filing, ear cleaning, teeth brushing, and flea/tick treatments. We use only pet-safe products and our groomers are certified professionals with years of experience handling all breeds and temperaments."
+    },
+    {
+      id: 2,
+      title: "Pet Training",
+      shortDescription: "Expert training programs for obedience, behavior modification, and special skills.",
+      detailedDescription: "We offer comprehensive training programs including puppy training, basic obedience, advanced commands, behavior modification for issues like barking or aggression, and specialized training for service or therapy dogs. Our certified trainers use positive reinforcement techniques tailored to your pet's personality and your family's needs."
+    },
+    {
+      id: 3,
+      title: "Pet Boarding",
+      shortDescription: "Safe and comfortable boarding facilities with daily exercise and personalized care.",
+      detailedDescription: "Our climate-controlled boarding facilities feature spacious private suites, daily exercise sessions, and 24/7 supervision. Each pet receives individualized attention, regular meal times, and medication administration if needed. We also offer webcam access so you can check on your pet anytime during their stay."
+    },
+    {
+      id: 4,
+      title: "Pet Daycare",
+      shortDescription: "Daily care and socialization with supervised playgroups and rest periods.",
+      detailedDescription: "Our daycare program provides structured socialization in small, temperament-matched groups. Activities include supervised play, puzzle toys, and rest periods. We separate dogs by size and energy level, and our staff is trained in canine body language and play styles to ensure safe, positive interactions."
+    },
+    {
+      id: 5,
+      title: "Pet Nutrition Counseling",
+      shortDescription: "Personalized dietary plans and nutritional advice for optimal health.",
+      detailedDescription: "Our certified pet nutritionists will assess your pet's age, breed, activity level, and any health concerns to create a customized feeding plan. We provide guidance on commercial foods, homemade diets, supplements, weight management, and special needs like allergies or kidney disease."
+    },
+    {
+      id: 6,
+      title: "Pet Transportation",
+      shortDescription: "Safe and comfortable transportation for vet visits or other destinations.",
+      detailedDescription: "Our pet transportation service uses climate-controlled vehicles equipped with secure crates or harness systems. We provide door-to-door service for vet appointments, grooming sessions, airport transfers, or any other destination. All drivers are pet first-aid certified and trained in safe handling techniques."
+    }
+  ];
+
+  const toggleServiceExpansion = (serviceId) => {
+    setExpandedService(expandedService === serviceId ? null : serviceId);
   };
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.heading}>Our Services</h1>
-      <p style={styles.description}>
-        We provide a range of services to ensure the safety, health, and happiness of your pets.
-      </p>
-      <div style={styles.servicesGrid}>
-        <div style={styles.serviceCard}>
-          <h2 style={styles.serviceTitle}>Pet Health Monitoring</h2>
-          <p style={styles.serviceDescription}>
-            Track your pet's health in real-time with our advanced monitoring system. Get alerts for
-            any unusual activity or health issues.
-          </p>
-          <button
-            style={styles.contactButton}
-            onClick={() => handleContactClick("Pet Health Monitoring")}
-          >
-            Contact 
-          </button>
-        </div>
-        <div style={styles.serviceCard}>
-          <h2 style={styles.serviceTitle}>Pet Sitting & Walking</h2>
-          <p style={styles.serviceDescription}>
-            Reliable and professional pet sitters and walkers to take care of your pet when you're
-            busy or away.
-          </p>
-          <button
-            style={styles.contactButton}
-            onClick={() => handleContactClick("Pet Sitting & Walking")}
-          >
-            Contact 
-          </button>
-        </div>
-        <div style={styles.serviceCard}>
-          <h2 style={styles.serviceTitle}>Emergency Vet Assistance</h2>
-          <p style={styles.serviceDescription}>
-            Immediate access to veterinary assistance in case of emergencies. We connect you with the
-            nearest vet instantly.
-          </p>
-          <button
-            style={styles.contactButton}
-            onClick={() => handleContactClick("Emergency Vet Assistance")}
-          >
-            Contact 
-          </button>
-        </div>
-        <div style={styles.serviceCard}>
-          <h2 style={styles.serviceTitle}>Pet Training</h2>
-          <p style={styles.serviceDescription}>
-            Professional training programs to help your pet learn good behavior and new skills.
-          </p>
-          <button
-            style={styles.contactButton}
-            onClick={() => handleContactClick("Pet Training")}
-          >
-            Contact 
-          </button>
-        </div>
-        <div style={styles.serviceCard}>
-          <h2 style={styles.serviceTitle}>Pet Insurance</h2>
-          <p style={styles.serviceDescription}>
-            Affordable insurance plans to cover your pet's medical expenses and ensure they receive
-            the best care.
-          </p>
-          <button
-            style={styles.contactButton}
-            onClick={() => handleContactClick("Pet Insurance")}
-          >
-            Contact 
-          </button>
+    <>
+      
+      <div style={styles.container}>
+        <h1 style={styles.heading}>Pet Services</h1>
+        <p style={styles.description}>
+          We offer comprehensive services to keep your pets healthy, happy, and well-groomed.
+        </p>
+        <div style={styles.servicesGrid}>
+          {services.map((service) => (
+            <div key={service.id} style={styles.serviceCard}>
+              <h2 style={styles.serviceTitle}>{service.title}</h2>
+              <p style={styles.serviceDescription}>
+                {service.shortDescription}
+              </p>
+              {expandedService === service.id && (
+                <div style={styles.detailedDescription}>
+                  <p>{service.detailedDescription}</p>
+                  <button
+                    style={styles.contactButton}
+                    onClick={() => navigate("/contact", { state: { service: service.title } })}
+                  >
+                    Contact About This Service
+                  </button>
+                </div>
+              )}
+              <button
+                style={styles.readMoreButton}
+                onClick={() => toggleServiceExpansion(service.id)}
+              >
+                {expandedService === service.id ? "Show Less" : "Read More"}
+              </button>
+            </div>
+          ))}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
-// Inline styles
+// Updated styles
 const styles = {
   container: {
     padding: "2rem",
@@ -131,16 +134,37 @@ const styles = {
   serviceDescription: {
     fontSize: "1rem",
     color: "#666",
-    flexGrow: 1, // Ensures the description takes up remaining space
+    flexGrow: 1,
+  },
+  detailedDescription: {
+    marginTop: "1rem",
+    paddingTop: "1rem",
+    borderTop: "1px solid #eee",
+    fontSize: "0.95rem",
+    color: "#555",
+  },
+  readMoreButton: {
+    backgroundColor: "#48bb78",
+    color: "#fff",
+    padding: "0.5rem 1rem",
+    borderRadius: "8px",
+    border: "none",
+    cursor: "pointer",
+    fontSize: "0.9rem",
+    marginTop: "1rem",
+    transition: "background-color 0.3s ease",
+    ":hover": {
+      backgroundColor: "#38a169",
+    },
   },
   contactButton: {
     backgroundColor: "#48bb78",
     color: "#fff",
-    padding: "0.75rem 1.5rem",
+    padding: "0.5rem 1rem",
     borderRadius: "8px",
     border: "none",
     cursor: "pointer",
-    fontSize: "1rem",
+    fontSize: "0.9rem",
     marginTop: "1rem",
     transition: "background-color 0.3s ease",
     ":hover": {

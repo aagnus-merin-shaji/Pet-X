@@ -13,16 +13,20 @@ export const contractaddAPI= async(data)=>{
     return response.data
 }
 
-export const contracteditAPI= async()=>{
+export const contracteditAPI= async(data)=>{
     const response = await axios.put(`${BASE_URL}/contract/edit`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+        headers:{
+            Authorization: `Bearer ${token}`,
+        } // Make sure credentials (cookies) are sent
     });
     return response.data
 }
 
 export const contractviewallAPI= async()=>{
     const response = await axios.get(`${BASE_URL}/contract/viewall`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+        headers:{
+            Authorization: `Bearer ${token}`,
+        }   // Make sure credentials (cookies) are sent
     });
     return response.data
 }

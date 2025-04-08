@@ -1,13 +1,9 @@
 const mongoose = require('mongoose');
 
 const adoptionContractSchema = new mongoose.Schema({
-    applicationId: { 
+    adoptionId: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Adoption', 
-        required: true 
-    },
-    contractDetails: { 
-        type: String, 
         required: true 
     },
     signedByAdopter: { 
@@ -19,7 +15,7 @@ const adoptionContractSchema = new mongoose.Schema({
         default: false 
     },
     signatureDate: { 
-        type: Date 
+        type: Date,
     },
 }, { timestamps: true });
 

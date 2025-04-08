@@ -65,7 +65,11 @@ const animalSchema = new mongoose.Schema({
     listedByIndividual: { 
         type: Boolean, 
         default: false // Set this to true if the pet is being rehomed by an individual 
-    }
+    },
+    adopterId: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User'
+    },
 }, { timestamps: true });
 
 const Animal = mongoose.model('Animal', animalSchema);

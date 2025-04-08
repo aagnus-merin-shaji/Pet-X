@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
 
-// Styled Components
+// Styled Components with Enhanced Styling
 const BackgroundContainer = styled.div`
   position: relative;
   width: 100%;
@@ -11,7 +11,7 @@ const BackgroundContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%); /* Softer, calming gradient */
 `;
 
 const BackgroundOverlay = styled(motion.div)`
@@ -22,70 +22,74 @@ const BackgroundOverlay = styled(motion.div)`
   height: 100%;
   background: url('./assets/background2.jpg') center/cover;
   z-index: 0;
+  opacity: 0.6; /* Slightly more transparent for subtlety */
 `;
 
 const ContentContainer = styled(motion.div)`
   max-width: 1200px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
+  margin: 3rem auto; /* Increased margin for breathing room */
+  padding: 3rem; /* More padding for comfort */
+  background: rgba(255, 255, 255, 0.97); /* Slightly more opaque */
+  border-radius: 25px; /* Softer corners */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08); /* Softer, larger shadow */
+  backdrop-filter: blur(12px); /* Enhanced blur for modern feel */
   position: relative;
   z-index: 1;
   overflow: hidden;
 `;
 
 const Section = styled(motion.div)`
-  margin-bottom: 3rem;
-  padding: 2rem;
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  margin-bottom: 4rem; /* More spacing between sections */
+  padding: 2.5rem; /* Increased padding */
+  background: #ffffff;
+  border-radius: 20px; /* Softer corners */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06); /* Subtle shadow */
+  transition: all 0.4s ease; /* Smoother transition */
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-8px); /* More pronounced lift */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12); /* Stronger hover shadow */
   }
 `;
 
 const Heading = styled(motion.h1)`
   text-align: center;
-  color: #2d3748;
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  font-weight: 700;
-  background: linear-gradient(90deg,rgb(248, 245, 60),rgb(243, 194, 96));
+  color: #1e293b; /* Darker, richer color */
+  font-size: 3.5rem; /* Slightly larger for impact */
+  margin-bottom: 1.5rem;
+  font-weight: 800; /* Bolder for emphasis */
+  background: linear-gradient(90deg, #facc15, #fb923c); /* Warmer, vibrant gradient */
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  letter-spacing: 1px; /* Better readability */
 `;
 
 const SubHeading = styled(motion.p)`
   text-align: center;
-  color: #4a5568;
-  font-size: 1.25rem;
-  margin-bottom: 3rem;
-  font-weight: 300;
+  color: #475569; /* Softer gray for contrast */
+  font-size: 1.5rem; /* Larger for readability */
+  margin-bottom: 4rem; /* More spacing */
+  font-weight: 400; /* Slightly heavier for clarity */
+  line-height: 1.4; /* Improved readability */
 `;
 
 const SectionTitle = styled(motion.h2)`
-  color: #2d3748;
-  font-size: 1.75rem;
-  margin-bottom: 1.5rem;
+  color: #1e293b; /* Darker for emphasis */
+  font-size: 2rem; /* Larger for hierarchy */
+  margin-bottom: 2rem;
   position: relative;
   display: inline-block;
+  font-weight: 600;
 
   &::after {
     content: '';
     position: absolute;
-    bottom: -8px;
+    bottom: -10px;
     left: 0;
-    width: 50px;
-    height: 3px;
-    background: linear-gradient(90deg,rgb(139, 250, 124),rgb(243, 239, 124));
-    border-radius: 3px;
+    width: 60px; /* Wider underline */
+    height: 4px; /* Thicker for visibility */
+    background: linear-gradient(90deg, #34d399, #facc15); /* Vibrant, playful gradient */
+    border-radius: 4px;
   }
 `;
 
@@ -93,68 +97,72 @@ const ServiceList = styled(motion.ul)`
   list-style: none;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Wider items */
+  gap: 1.5rem; /* More spacing */
 `;
 
 const ServiceItem = styled(motion.li)`
-  padding: 1rem;
-  background: #f7fafc;
-  border-radius: 10px;
+  padding: 1.25rem; /* More padding */
+  background: #f0fdf4; /* Light green for positivity */
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  margin-bottom: 0.5rem;
-  transition: all 0.3s ease;
+  margin-bottom: 0.75rem;
+  transition: all 0.4s ease;
+  font-size: 1.1rem; /* Larger text */
+  color: #1f2937; /* Darker for readability */
 
   &::before {
     content: '✓';
-    color: #48bb78;
-    margin-right: 0.5rem;
+    color: #16a34a; /* Brighter green checkmark */
+    margin-right: 0.75rem;
     font-weight: bold;
+    font-size: 1.2rem;
   }
 
   &:hover {
-    background: #ebf8ff;
-    transform: translateX(5px);
+    background: #dbeafe; /* Light blue on hover */
+    transform: translateX(8px); /* More movement */
   }
 `;
 
 const CTAButton = styled(motion.button)`
-  background: linear-gradient(90deg,rgb(145, 244, 152),rgb(248, 246, 121));
-  color: white;
-  padding: 1rem 2rem;
+  background: linear-gradient(90deg, #34d399, #facc15); /* Matching vibrant gradient */
+  color: #ffffff;
+  padding: 1.25rem 2.5rem; /* Larger button */
   border-radius: 50px;
   border: none;
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.1rem; /* Larger text */
+  font-weight: 700; /* Bolder */
   display: block;
-  margin: 2rem auto 0;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  margin: 3rem auto 0; /* More spacing */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Stronger shadow */
+  transition: all 0.4s ease;
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px); /* Higher lift */
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15); /* Deeper shadow */
   }
 `;
 
 const ContactInfo = styled(motion.p)`
-  color: #4a5568;
-  font-size: 1rem;
-  margin-bottom: 0.75rem;
+  color: #475569; /* Softer gray */
+  font-size: 1.1rem; /* Larger for readability */
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem; /* More spacing */
 `;
 
 const Link = styled.a`
-  color: #4299e1;
+  color: #3b82f6; /* Brighter blue */
   text-decoration: none;
   transition: all 0.3s ease;
+  font-weight: 500; /* Slightly bolder */
 
   &:hover {
-    color: #3182ce;
+    color: #2563eb; /* Darker blue on hover */
     text-decoration: underline;
   }
 `;
@@ -189,95 +197,93 @@ const fadeIn = {
 };
 
 const ClinicHome = () => {
-    return (
-        <BackgroundContainer>
-            <BackgroundOverlay 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.7 }}
-                transition={{ duration: 1 }}
-            />
-            
-            <ContentContainer
-                initial="hidden"
-                animate="visible"
-                variants={containerVariants}
-            >
-                <Heading variants={itemVariants}>
-                    PetX Clinic
-                </Heading>
-                <SubHeading variants={itemVariants}>
-                    Your trusted partner in pet health and safety.
-                </SubHeading>
+  return (
+    <BackgroundContainer>
+      <BackgroundOverlay 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.6 }} /* Matches new opacity */
+        transition={{ duration: 1 }}
+      />
+      
+      <ContentContainer
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        <Heading variants={itemVariants}>
+          PetX Clinic
+        </Heading>
+        <SubHeading variants={itemVariants}>
+          Your trusted partner in pet health and safety.
+        </SubHeading>
 
-                {/* About Section */}
-                <Section
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.01 }}
-                >
-                    <SectionTitle variants={fadeIn}>About Our Clinic</SectionTitle>
-                    <motion.p variants={fadeIn} style={{ color: '#4a5568', lineHeight: '1.6' }}>
-                        At PetGuard Clinic, we specialize in providing comprehensive care for your pets. 
-                        Our state-of-the-art facilities and experienced veterinarians ensure that your 
-                        furry friends receive the best possible care. With the integration of PetGuard 
-                        technology, we offer advanced monitoring and safety solutions to keep your pets 
-                        healthy and secure.
-                    </motion.p>
-                </Section>
+        {/* About Section */}
+        <Section
+          variants={itemVariants}
+          whileHover={{ scale: 1.01 }}
+        >
+          <SectionTitle variants={fadeIn}>About Our Clinic</SectionTitle>
+          <motion.p 
+            variants={fadeIn} 
+            style={{ 
+              color: '#475569', /* Matches new text color */
+              lineHeight: '1.8', /* More readable */
+              fontSize: '1.1rem' /* Larger text */
+            }}
+          >
+            At PetGuard Clinic, we specialize in providing comprehensive care for your pets. 
+            Our state-of-the-art facilities and experienced veterinarians ensure that your 
+            furry friends receive the best possible care. With the integration of PetGuard 
+            technology, we offer advanced monitoring and safety solutions to keep your pets 
+            healthy and secure.
+          </motion.p>
+        </Section>
 
-                {/* Services Section */}
-                <Section
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.01 }}
-                >
-                    <SectionTitle variants={fadeIn}>Our Services</SectionTitle>
-                    <ServiceList variants={containerVariants}>
-                        <ServiceItem variants={itemVariants}>Routine Checkups and Vaccinations</ServiceItem>
-                        <ServiceItem variants={itemVariants}>Emergency Care</ServiceItem>
-                        <ServiceItem variants={itemVariants}>PetGuard Monitoring and Tracking</ServiceItem>
-                        <ServiceItem variants={itemVariants}>Surgical Procedures</ServiceItem>
-                        <ServiceItem variants={itemVariants}>Nutritional Counseling</ServiceItem>
-                    </ServiceList>
-                </Section>
+        {/* Services Section */}
+        <Section
+          variants={itemVariants}
+          whileHover={{ scale: 1.01 }}
+        >
+          <SectionTitle variants={fadeIn}>Our Services</SectionTitle>
+          <ServiceList variants={containerVariants}>
+            <ServiceItem variants={itemVariants}>Routine Checkups and Vaccinations</ServiceItem>
+            <ServiceItem variants={itemVariants}>Emergency Care</ServiceItem>
+            <ServiceItem variants={itemVariants}>PetGuard Monitoring and Tracking</ServiceItem>
+            <ServiceItem variants={itemVariants}>Surgical Procedures</ServiceItem>
+            <ServiceItem variants={itemVariants}>Nutritional Counseling</ServiceItem>
+          </ServiceList>
+        </Section>
 
-                {/* PetGuard Integration Section */}
-                <Section
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.01 }}
-                >
-                    <SectionTitle variants={fadeIn}>PetGuard Integration</SectionTitle>
-                    <motion.p variants={fadeIn} style={{ color: '#4a5568', lineHeight: '1.6', marginBottom: '1rem' }}>
-                        PetGuard is a revolutionary product that helps you monitor your pet's health and 
-                        location in real-time. At our clinic, we use PetGuard to:
-                    </motion.p>
-                    <ServiceList variants={containerVariants}>
-                        <ServiceItem variants={itemVariants}>Track your pet's activity and health metrics</ServiceItem>
-                        <ServiceItem variants={itemVariants}>Provide real-time alerts for emergencies</ServiceItem>
-                        <ServiceItem variants={itemVariants}>Ensure your pet's safety with GPS tracking</ServiceItem>
-                    </ServiceList>
-                </Section>
-
-                {/* Contact Section */}
-                <Section
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.01 }}
-                >
-                    <SectionTitle variants={fadeIn}>Contact Us</SectionTitle>
-                    <motion.p variants={fadeIn} style={{ color: '#4a5568', lineHeight: '1.6', marginBottom: '1.5rem' }}>
-                        Have questions or need to schedule an appointment? Reach out to us!
-                    </motion.p>
-                    <ContactInfo variants={itemVariants}>
-                        📞 <Link href="tel:+1234567890">+1 (234) 567-890</Link>
-                    </ContactInfo>
-                    <ContactInfo variants={itemVariants}>
-                        📧 <Link href="mailto:info@petguardclinic.com">info@petguardclinic.com</Link>
-                    </ContactInfo>
-                    <ContactInfo variants={itemVariants}>
-                        📍 123 PetGuard Lane, Pet City, PC 12345
-                    </ContactInfo>
-                </Section>
-            </ContentContainer>
-        </BackgroundContainer>
-    );
+        {/* Contact Section */}
+        <Section
+          variants={itemVariants}
+          whileHover={{ scale: 1.01 }}
+        >
+          <SectionTitle variants={fadeIn}>Contact Us</SectionTitle>
+          <motion.p 
+            variants={fadeIn} 
+            style={{ 
+              color: '#475569', /* Matches new text color */
+              lineHeight: '1.8', /* More readable */
+              marginBottom: '2rem', /* More spacing */
+              fontSize: '1.1rem' /* Larger text */
+            }}
+          >
+            Have questions or need to schedule an appointment? Reach out to us!
+          </motion.p>
+          <ContactInfo variants={itemVariants}>
+            📞 <Link href="tel:+1234567890">+1 (234) 567-890</Link>
+          </ContactInfo>
+          <ContactInfo variants={itemVariants}>
+            📧 <Link href="mailto:info@petguardclinic.com">info@petguardclinic.com</Link>
+          </ContactInfo>
+          <ContactInfo variants={itemVariants}>
+            📍 123 PetGuard Lane, Pet City, PC 12345
+          </ContactInfo>
+        </Section>
+      </ContentContainer>
+    </BackgroundContainer>
+  );
 };
 
 export default ClinicHome;

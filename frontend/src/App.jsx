@@ -38,15 +38,19 @@ import ContractSign from "./pages/ContractSign";
 import AdopterMedicalDetails from "./pages/adopter/AdopterMedicalDetails";
 import LostFound from "./pages/adopter/LostFound";
 import LostFoundview from "./pages/adopter/LostFoundview";
+import ShelterContract from "./pages/shelter/ShelterContract";
+import { useSelector } from "react-redux";
 
 function App() {
   const { state } = useGlobalContext();
   const location = useLocation();
 
+  const userRole = useSelector((state) => state.user.role);
+
   // Define admin-based routes
   const adminRoutes = ["/admin/dashboard"];
 
-  // Define shelter-based routes
+  // Define shelter-based routes (Added /shelter/contract)
   const shelterRoutes = [
     "/shelterhome",
     "/shelter/add-animal",
@@ -54,6 +58,7 @@ function App() {
     "/shelter/adoptions",
     "/shelter/reports",
     "/shelter/profile",
+    "/shelter/contract", // Added here to ensure ShelterNavbar is recognized
   ];
 
   // Define clinic-based routes
@@ -111,48 +116,60 @@ function App() {
       )}
 
       {/* Routes */}
-      <Routes>
-        {/* Common Routes */}
-        <Route path="/" element={<GetStart />} /> {/* Landing Page */}
-        <Route path="/home" element={<Home />} /> {/* adopter Page */}
-        <Route path="/profile" element={<UserProfile />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/portfolio" element={<Portfolio />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/order" element={<Order />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} /> {/* Adopter Register */}
-        <Route path="/shelter-register" element={<ShelterRegister />} /> {/* Shelter Register */}
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/search" element={<SearchResults />} />
-        <Route path="/payment" element={<Payment />} />
-        <Route path="/adopter-profile" element={<AdopterProfile />} />
-        <Route path="/adopter-adoptions" element={<AdopterAdoptions />} />
-        <Route path="/adopter/medical-details" element={<AdopterMedicalDetails />} />
-        <Route path="/contract-sign" element={<ContractSign />} />
-        <Route path="/adopter-lostfound" element={<LostFound />} />
-        <Route path="/adopter-lostfoundview" element={<LostFoundview/>} />
-
-        {/* Admin Routes */}
-        <Route path="/admin/dashboard" element={<Admindashbaordpage />} />
-
-        {/* Shelter Routes */}
-        <Route path="/shelterhome" element={<ShelterHome />} />
-        <Route path="/shelter/add-animal" element={<AddAnimal />} />
-        <Route path="/shelter/animals" element={<Animals />} />
-        <Route path="/shelter/adoptions" element={<Adoptions />} />
-        <Route path="/shelter/reports" element={<Reports />} />
-        <Route path="/shelter/profile" element={<ShelterProfilePage />} />
-
-        {/* Clinic Routes */}
-        <Route path="/clinic/home" element={<ClinicHome />} />
-        <Route path="/clinic/animals" element={<ClinicAnimals />} />
-        <Route path="/clinic/animals/medical-details" element={<PetMedicalDetailsForm />} />
-        <Route path="/clinic/services" element={<ClinicServices />} />
-        <Route path="/clinic/contact" element={<ClinicContact />} />
-      </Routes>
+      {userRole === "individual" ? (
+        <Routes>
+          <Route path="/home" element={<Home />} /> {/* adopter Page */}
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/search" element={<SearchResults />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/adopter-profile" element={<AdopterProfile />} />
+          <Route path="/adopter-adoptions" element={<AdopterAdoptions />} />
+          <Route path="/adopter/medical-details" element={<AdopterMedicalDetails />} />
+          <Route path="/contract-sign" element={<ContractSign />} />
+          <Route path="/adopter-lostfound" element={<LostFound />} />
+          <Route path="/adopter-lostfoundview" element={<LostFoundview />} />
+          <Route path="*" element={<>404 Not Found</>} />
+        </Routes>
+      ) : userRole === "admin" ? (
+        <Routes>
+          <Route path="/admin/dashboard" element={<Admindashbaordpage />} />
+          <Route path="*" element={<>404 Not Found</>} />
+        </Routes>
+      ) : userRole === "shelter" ? (
+        <Routes>
+          <Route path="/shelterhome" element={<ShelterHome />} />
+          <Route path="/shelter/add-animal" element={<AddAnimal />} />
+          <Route path="/shelter/animals" element={<Animals />} />
+          <Route path="/shelter/adoptions" element={<Adoptions />} />
+          <Route path="/shelter/reports" element={<Reports />} />
+          <Route path="/shelter/profile" element={<ShelterProfilePage />} />
+          <Route path="/shelter/contract" element={<ShelterContract />} />
+          <Route path="*" element={<>404 Not Found</>} />
+        </Routes>
+      ) : userRole === "clinic" ? (
+        <Routes>
+          <Route path="/clinic/home" element={<ClinicHome />} />
+          <Route path="/clinic/animals" element={<ClinicAnimals />} />
+          <Route path="/clinic/animals/medical-details" element={<PetMedicalDetailsForm />} />
+          <Route path="/clinic/services" element={<ClinicServices />} />
+          <Route path="/clinic/contact" element={<ClinicContact />} />
+          <Route path="*" element={<>404 Not Found</>} />
+        </Routes>
+      ) : (
+        <Routes>
+          <Route path="/" element={<GetStart />} /> {/* Landing Page */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} /> {/* Adopter Register */}
+          <Route path="/shelter-register" element={<ShelterRegister />} /> {/* Shelter Register */}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="*" element={<Login />} />
+        </Routes>
+      )}
 
       {/* Footer */}
       {!isNoNavbarPage && <Footer />} {/* Hide footer on no-navbar pages */}

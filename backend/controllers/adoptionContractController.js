@@ -5,15 +5,12 @@ const Adoption = require('../models/adoptionModel');
 const adoptionContractController = {
     // Add new adoption contract
     createContract: asyncHandler(async (req, res) => {
-        const { applicationId, contractDetails } = req.body;
-        const adoption = await Adoption.findById(applicationId);
-        if (!adoption) {
-            res.status(400);
-            throw new Error('Adoption application not found');
-        }
+        const { id } = req.body;
+        const adoption = await Adoption.findOne({animalId:id});
         const adoptionContract = new AdoptionContract({
-            applicationId,
-            contractDetails
+            adoptionId:adoption.id,
+            signedByAdopter:true,
+            signatureDate:Date.now()
         });
         await adoptionContract.save();
         res.status(201).json(adoptionContract);
@@ -30,7 +27,7 @@ const adoptionContractController = {
             filter.shelterId = shelterId;  // Filter by shelter
         }
         const adoptions = await Adoption.find(filter);
-        const adoptionContracts = await AdoptionContract.find({ applicationId: { $in: adoptions.map(adoption => adoption._id) }}).populate('applicationId');
+        const adoptionContracts = await AdoptionContract.find({ adoptionId: { $in: adoptions.map(adoption => adoption._id) }}).populate('adoptionId');
         
         res.status(200).json(adoptionContracts);
     }),
@@ -38,7 +35,7 @@ const adoptionContractController = {
     // Get a specific adoption contract by ID
     getContractById: asyncHandler(async (req, res) => {
         const {id}=req.body
-        const adoptionContract = await AdoptionContract.findById(id).populate('applicationId');
+        const adoptionContract = await AdoptionContract.findById(id).populate('adoptionId');
         if (!adoptionContract) {
             res.status(404);
             throw new Error('Adoption contract not found');        }
@@ -47,17 +44,14 @@ const adoptionContractController = {
 
     // Update adoption contract (signing)
     updateContract: asyncHandler(async (req, res) => {
-        const { id,signedByAdopter, signedByShelter, signatureDate } = req.body;
-        const adoptionContract = await AdoptionContract.findById(id);
-        if (!adoptionContract) {
-            res.status(404);
-            throw new Error('Adoption contract not found');
-        }
-        if (signedByAdopter) adoptionContract.signedByAdopter = signedByAdopter;
-        if (signedByShelter) adoptionContract.signedByShelter = signedByShelter;
-        if (signatureDate) adoptionContract.signatureDate = signatureDate;
+        const { id } = req.body;
+        const adoption = await Adoption.findOne({animalId:id});
+        const adoptionContract = await AdoptionContract.findOne({
+            adoptionId:adoption._id
+        });
+        adoptionContract.signedByShelter=true
         await adoptionContract.save();
-        res.status(200).json(adoptionContract);
+        res.status(201).json(adoptionContract);
     }),
 
     // Delete an adoption contract

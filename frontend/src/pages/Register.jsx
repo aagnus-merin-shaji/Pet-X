@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { useMutation } from "@tanstack/react-query";
 import { usersregisterAPI } from "../services/userServices"; // Ensure this path is correct
 import { jwtDecode } from "jwt-decode";
+import { loginUserAction } from "../redux/userSlice";
 
 const Register = () => {
   const navigate = useNavigate();

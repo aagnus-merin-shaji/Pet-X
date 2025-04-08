@@ -12,7 +12,7 @@ const dispatch=useDispatch()
   const handleLogout = () => {
     logoutUser(); // Clear context
     dispatch(logoutAction()); // Clear Redux state
-    localStorage.clear(); // Clear all local storage
+    sessionStorage.clear(); // Clear all local storage
     navigate("/login", { replace: true }); // Redirect and replace history
   };
 
