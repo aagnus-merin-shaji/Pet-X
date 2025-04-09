@@ -5,7 +5,9 @@ import { Logo, Menu } from "../icons/index";
 import { avatar } from "../assets/imagedata";
 import FloatingCart from "../components/FloatingCart";
 import { useGlobalContext } from "../context/context";
-import Logout from "./Logout"; // Import the Logout component
+import Logout from "./Logout";
+import { markasreadAPI, notificationviewallAPI } from "../services/notificationServices";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // Bell Icon Component
 const BellIcon = () => (
@@ -26,11 +28,11 @@ const BellIcon = () => (
 );
 
 // Notification Tab Component
-const NotificationTab = ({ notifications }) => (
+const NotificationTab = ({ notifications, onMarkAllAsRead }) => (
   <NotificationTabWrapper>
     <div className="notification-header">
       <h4>Notifications</h4>
-      <button>Mark all as read</button>
+      <button onClick={onMarkAllAsRead}>Mark all as read</button>
     </div>
     <ul className="notification-list">
       {notifications.map((notification, idx) => (
@@ -56,18 +58,32 @@ const ShelterNavbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  
+  const { data: notifications, isLoading, error } = useQuery({
+    queryFn: notificationviewallAPI,
+    queryKey: ["view-all"],
+  });
+
+  const markAsReadMutation = useMutation({
+    mutationFn: markasreadAPI,
+    mutationKey: ['markas-read'],
+    onSuccess: () => {
+      queryClient.invalidateQueries(['view-all']);
+    },
+  });
+
+  const handleMarkAllAsRead = () => {
+    markAsReadMutation.mutate();
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
     console.log("Search query:", searchQuery);
   };
 
-  // Dummy notifications data
-  const notifications = [
-    { message: "Your order has been shipped.", time: "2 hours ago", read: false },
-    { message: "New product available in collections.", time: "5 hours ago", read: true },
-    { message: "Flash sale starts in 1 hour.", time: "1 day ago", read: false },
-  ];
+  // Use notificationsData if available, otherwise use an empty array
+  // const notifications = notificationsData || [];
 
   return (
     <NavigatorWrapper>
@@ -110,7 +126,12 @@ const ShelterNavbar = () => {
                 </span>
               )}
             </button>
-            {showNotifications && <NotificationTab notifications={notifications} />}
+            {showNotifications && (
+              <NotificationTab 
+                notifications={notifications} 
+                onMarkAllAsRead={handleMarkAllAsRead} 
+              />
+            )}
           </div>
 
           {/* Avatar Button */}
@@ -119,7 +140,7 @@ const ShelterNavbar = () => {
           </button>
 
           {/* Logout Button */}
-          <Logout /> {/* Add the Logout component here */}
+          <Logout />
 
           {/* Floating Cart */}
           <FloatingCart className={`${state.showingCart ? "active" : ""}`} />
@@ -129,7 +150,7 @@ const ShelterNavbar = () => {
   );
 };
 
-// Styled Components (Same as Navigator.jsx)
+// Styled Components
 const NavigatorWrapper = styled.header`
   position: relative;
   padding: 2.4rem;

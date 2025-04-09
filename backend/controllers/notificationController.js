@@ -9,6 +9,7 @@ const notificationController = {
 
     markNotificationAsRead: asyncHandler(async (req, res) => {
         const notifications = await Notification.deleteMany({user:req.user.id});
+console.log('hi');
 
         res.send("Notification marked as read.");
     }),

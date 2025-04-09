@@ -18,7 +18,6 @@ const ShelterHome = () => {
     <VendorHomeWrapper>
       <section className="hero">
         <h1>Welcome to Shelter Home</h1>
-        <p>Manage your products and grow your business with us.</p>
         {/* <button onClick={goToVendorDashboard} className="dashboard-button">
           Go to Dashboard
         </button> */}

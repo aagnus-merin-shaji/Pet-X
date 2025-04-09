@@ -39,7 +39,9 @@ export const totalusersAPI= async()=>{
 
 export const adminadoptionsAPI= async()=>{
     const response = await axios.get(`${BASE_URL}/admin/adoptions`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+        headers:{
+            Authorization: `Bearer ${token}`
+        }  // Make sure credentials (cookies) are sent
     });
     return response.data
 }

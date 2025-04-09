@@ -70,10 +70,10 @@ const adoptionController = {
 
         // Determine the recipient of the notification
         const recipientId = pet.shelterId // Either the shelter or the individual who listed the pet
-
+        const shelter = await Shelter.findById(recipientId)
         // Create a new notification
         const notification = new Notification({
-            user: recipientId,
+            user: shelter.userId,
             message: `New adoption application received for ${pet.name}.`,
         });
 

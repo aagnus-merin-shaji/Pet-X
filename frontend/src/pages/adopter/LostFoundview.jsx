@@ -1,15 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
-import { lostfoundviewallAPI } from "../../services/lostfoundServices";
+import { lostfoundviewallAPI, lostfoundviewuserAPI } from "../../services/lostfoundServices";
 import { FaPaw } from "react-icons/fa";
 
 const LostFoundview = () => {
     const [expandedId, setExpandedId] = useState(null);
 
     const { data, isLoading, isError, error } = useQuery({
+        queryKey: ["lost-viewuser"],
+        queryFn: lostfoundviewuserAPI,
+    });
+
+    const { data:lost} = useQuery({
         queryKey: ["lost-view"],
         queryFn: lostfoundviewallAPI,
     });
+console.log(lost);
 
     const toggleReadMore = (id) => {
         setExpandedId(expandedId === id ? null : id);
@@ -18,7 +24,9 @@ const LostFoundview = () => {
     if (isLoading) return <div style={styles.loading}>Loading reports...</div>;
     if (isError) return <div style={styles.error}>Error: {error.message}</div>;
 
-    const reports = data?.reports || [];
+  
+   console.log("ert",lost);
+   
 
     return (
         <div style={styles.container}>
@@ -27,8 +35,8 @@ const LostFoundview = () => {
                 Lost Pets
             </h1>
             <div style={styles.grid}>
-                {reports.length > 0 ? (
-                    reports.map((report) => (
+                {lost?.length > 0 ? (
+                    lost.map((report) => (
                         <div key={report._id} style={styles.card}>
                             <div style={styles.cardContent}>
                                 <h2 style={styles.reportName}>{report.animal}</h2>
@@ -55,26 +63,17 @@ const LostFoundview = () => {
                                 </p>
                             </div>
                             <img
-                                src={
-                                    report.photos?.[0] ||
-                                    "https://via.placeholder.com/240?text=No+Image"
-                                }
+                                src={report?.photos}
                                 alt={report.animal}
                                 style={styles.reportPhoto}
                             />
                             <div style={styles.cardContent}>
-                                {expandedId === report._id && (
+                                {expandedId === lost._id && (
                                     <p style={styles.moreInfo}>
                                         <strong>Description:</strong>{" "}
                                         {report.description || "No additional details provided."}
                                     </p>
                                 )}
-                                <button
-                                    style={styles.readMoreButton}
-                                    onClick={() => toggleReadMore(report._id)}
-                                >
-                                    {expandedId === report._id ? "Read Less" : "Read More"}
-                                </button>
                                 <button style={styles.contactButton}>
                                     Contact: {report.contact}
                                 </button>

@@ -1,6 +1,7 @@
 const AdoptionContract = require('../models/adoptionContractModel');
 const asyncHandler = require('express-async-handler');
 const Adoption = require('../models/adoptionModel');
+const Animal = require('../models/animalModel');
 
 const adoptionContractController = {
     // Add new adoption contract
@@ -46,6 +47,8 @@ const adoptionContractController = {
     updateContract: asyncHandler(async (req, res) => {
         const { id } = req.body;
         const adoption = await Adoption.findOne({animalId:id});
+        const animal = await Animal.findById(id);
+        animal.status = "adopted"
         const adoptionContract = await AdoptionContract.findOne({
             adoptionId:adoption._id
         });

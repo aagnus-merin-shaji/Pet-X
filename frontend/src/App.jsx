@@ -9,7 +9,6 @@ import Login from "./pages/Login";
 import Register from "./pages/Register"; // Adopter Register
 import ShelterRegister from "./pages/shelter/ShelterRegister"; // Shelter Register
 import SearchResults from "./components/SearchResults";
-import Order from "./pages/Order";
 import Wishlist from "./pages/Wishlist";
 import Footer from "./components/Footer";
 import UserProfile from "./components/UserProfile";

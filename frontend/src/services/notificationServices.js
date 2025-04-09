@@ -26,8 +26,8 @@ export const notificationdeleteAPI= async(data)=>{
     });
     return response.data
 }
-export const markasreadAPI= async(data)=>{
-    const response = await axios.put(`${BASE_URL}/notification/update`, data,{
+export const markasreadAPI= async()=>{
+    const response = await axios.put(`${BASE_URL}/notification/update`,{},{
         headers:{
             Authorization: `Bearer ${token}`
         }    

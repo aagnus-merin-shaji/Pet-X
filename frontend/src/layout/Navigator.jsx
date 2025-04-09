@@ -83,15 +83,13 @@ const Navigator = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: notifications, isLoading,
-
- error } = useQuery({
+  const { data: notifications, isLoading,error } = useQuery({
     queryFn: notificationviewallAPI,
     queryKey: ["view-all"],
   });
 
   const markAsReadMutation = useMutation({
-    mutationFn: (id) => markasreadAPI({ id }),
+    mutationFn: markasreadAPI,
     mutationKey: ['markas-read'],
     onSuccess: () => {
       queryClient.invalidateQueries(['view-all']);
@@ -115,14 +113,7 @@ const Navigator = () => {
   };
 
   const handleMarkAllAsRead = () => {
-    if (notifications && notifications.length > 0) {
-      const unreadNotifications = notifications.filter(n => !n.read);
-      unreadNotifications.forEach(notification => {
-        if (notification.id) {  // Assuming each notification has an id
-          markAsReadMutation.mutate(notification.id);
-        }
-      });
-    }
+    markAsReadMutation.mutate();
   };
 
   return (

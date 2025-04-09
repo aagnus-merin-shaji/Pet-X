@@ -7,8 +7,9 @@ const token = getToken()
 export const lostaddAPI= async(data)=>{
     const response = await axios.post(`${BASE_URL}/lostfound/add`,data, {
         headers:{
-            Authorization: `Bearer ${token}`
-        }   // Make sure credentials (cookies) are sent
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+        }   
     });
     return response.data
 }
@@ -16,6 +17,15 @@ export const lostaddAPI= async(data)=>{
 export const lostfoundeditAPI= async()=>{
     const response = await axios.put(`${BASE_URL}/lostfound/edit`,data, {
         withCredentials: true,  // Make sure credentials (cookies) are sent
+    });
+    return response.data
+}
+
+export const lostfoundviewuserAPI= async()=>{
+    const response = await axios.get(`${BASE_URL}/lostfound/lostbyuser`, {
+        headers:{
+            Authorization: `Bearer ${token}`
+        }  // Make sure credentials (cookies) are sent
     });
     return response.data
 }

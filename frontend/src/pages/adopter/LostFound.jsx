@@ -4,7 +4,7 @@ import { useFormik } from "formik";
 import { useMutation } from "@tanstack/react-query";
 import { lostaddAPI } from "../../services/lostfoundServices";
 
-// Styled Components (same as before)
+// Styled Components
 const Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
@@ -17,6 +17,13 @@ const Container = styled.div`
 const Title = styled.h1`
   text-align: center;
   color: #333;
+  margin-bottom: 20px;
+`;
+
+const SectionTitle = styled.h2`
+  color: #555;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
   margin-bottom: 20px;
 `;
 
@@ -43,6 +50,19 @@ const Input = styled.input`
   }
 `;
 
+const TextArea = styled.textarea`
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+  &:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+`;
+
 const Select = styled.select`
   width: 100%;
   padding: 10px;
@@ -55,35 +75,28 @@ const Select = styled.select`
   }
 `;
 
-const TextArea = styled.textarea`
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  min-height: 80px;
-  &:focus {
-    border-color: #007bff;
-    outline: none;
-  }
-`;
-
 const Button = styled.button`
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
   font-size: 14px;
   cursor: pointer;
-  background-color: #007bff;
+  background-color: ${(props) => (props.primary ? "#007bff" : "#6c757d")};
   color: white;
   margin-right: 10px;
   &:hover {
-    background-color: #0056b3;
+    background-color: ${(props) => (props.primary ? "#0056b3" : "#5a6268")};
   }
   &:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
   }
+`;
+
+const ErrorMessage = styled.div`
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 10px;
 `;
 
 const ImagePreview = styled.div`
@@ -100,195 +113,182 @@ const PreviewImage = styled.img`
   border-radius: 4px;
 `;
 
-const Alert = styled.div`
-  padding: 15px;
-  margin-bottom: 20px;
-  border-radius: 4px;
-  background-color: ${props => props.success ? '#d4edda' : '#f8d7da'};
-  color: ${props => props.success ? '#155724' : '#721c24'};
-  border: 1px solid ${props => props.success ? '#c3e6cb' : '#f5c6cb'};
-`;
-
 const LostFound = () => {
-    const { mutateAsync, isPending, isError, error } = useMutation({
-        mutationFn: lostaddAPI,
-        mutationKey: ["add-lostanimal"],
-      });
+  const { mutateAsync, isPending, isError, error } = useMutation({
+    mutationFn: lostaddAPI,
+    mutationKey: ["add-lostanimal"],
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
   const [submitMessage, setSubmitMessage] = useState('');
 
   const formik = useFormik({
     initialValues: {
-      animal: "",
+      animalName: "",
       animalType: "",
       lastSeenLocation: "",
       dateLostOrFound: "",
       contact: "",
-      photos: [],
+      photos: null,
     },
     onSubmit: async (values) => {
-      setIsSubmitting(true);
-      setSubmitStatus(null);
+      const formData = new FormData();
       
+      // Append all fields except photos
+      formData.append('animal', values.animal);
+      formData.append('animalType', values.animalType);
+      formData.append('lastSeenLocation', values.lastSeenLocation);
+      formData.append('dateLostOrFound', values.dateLostOrFound);
+      formData.append('contact', values.contact);
+      
+      // Append each photo file
+      if (values.photos) {
+        Array.from(values.photos).forEach((file) => {
+          formData.append('photos', file); // Must match backend field name
+        });
+      }
+
       try {
-        // Simulate API call to backend
-        const response = await mutateAsync(values);
-        
-        // If successful
-        setSubmitStatus('success');
-        setSubmitMessage('Report submitted successfully!');
+        await mutateAsync(formData);
         formik.resetForm();
-        
-        // Show success alert
         alert('Report submitted successfully!');
-        
-        console.log("Form submitted successfully:", response);
-      } catch (error) {
-        // If error
-        setSubmitStatus('error');
-        setSubmitMessage('Failed to submit report. Please try again.');
-        
-        // Show error alert
+      } catch (err) {
         alert('Failed to submit report. Please try again.');
-        
-        console.error("Submission error:", error);
-      } finally {
-        setIsSubmitting(false);
       }
     },
   });
-
-  // Mock function to simulate backend save
-  const saveToBackend = async (formData) => {
-    // In a real app, you would use fetch or axios to send data to your backend
-    // This is a mock implementation that simulates a network request
-    
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // Simulate random success/failure for demonstration
-        const isSuccess = Math.random() > 0.2; // 80% success rate
-        
-        if (isSuccess) {
-          resolve({
-            status: 'success',
-            data: {
-              id: Date.now(),
-              ...formData,
-              // Don't include files in the mock response
-              photos: formData.photos ? `Received ${formData.photos.length} photos` : 'No photos'
-            }
-          });
-        } else {
-          reject(new Error('Network error: Failed to save data'));
-        }
-      }, 1500); // Simulate network delay
-    });
-  };
 
   return (
     <Container>
       <Title>Lost Pet Report</Title>
 
       {submitStatus && (
-        <Alert success={submitStatus === 'success'}>
+        <div style={{
+          padding: '15px',
+          marginBottom: '20px',
+          borderRadius: '4px',
+          backgroundColor: submitStatus === 'success' ? '#d4edda' : '#f8d7da',
+          color: submitStatus === 'success' ? '#155724' : '#721c24',
+          border: `1px solid ${submitStatus === 'success' ? '#c3e6cb' : '#f5c6cb'}`
+        }}>
           {submitMessage}
-        </Alert>
+        </div>
       )}
 
       <form onSubmit={formik.handleSubmit}>
-        {/* All your form fields remain the same */}
-        <FormGroup>
-          <Label>Animal Name</Label>
-          <Input
-            type="text"
-            name="animal"
-            placeholder="Enter animal's name"
-            value={formik.values.animal}
-            onChange={formik.handleChange}
-          />
-        </FormGroup>
+        {/* General Information Section */}
+        <div>
+          <SectionTitle>General Information</SectionTitle>
+          <FormGroup>
+            <Label>Animal Name</Label>
+            <Input
+              type="text"
+              name="animalname"
+              placeholder="Enter animal's name"
+              value={formik.values.animal}
+              onChange={formik.handleChange}
+            />
+          </FormGroup>
 
-        <FormGroup>
-          <Label>Animal Type</Label>
-          <Select
-            name="animalType"
-            value={formik.values.animalType}
-            onChange={formik.handleChange}
+          <FormGroup>
+            <Label>Animal Type</Label>
+            <Select
+              name="animalType"
+              value={formik.values.animalType}
+              onChange={formik.handleChange}
+            >
+              <option value="">Select animal type</option>
+              <option value="dog">Dog</option>
+              <option value="cat">Cat</option>
+              <option value="bird">Bird</option>
+              <option value="reptile">Reptile</option>
+              <option value="other">Other</option>
+            </Select>
+          </FormGroup>
+        </div>
+
+        {/* Lost Information Section */}
+        <div>
+          <SectionTitle>Lost Information</SectionTitle>
+          <FormGroup>
+            <Label>Last Seen Location</Label>
+            <TextArea
+              name="lastSeenLocation"
+              placeholder="Enter detailed location where the animal was last seen"
+              value={formik.values.lastSeenLocation}
+              onChange={formik.handleChange}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <Label>Date Lost</Label>
+            <Input
+              type="date"
+              name="dateLostOrFound"
+              value={formik.values.dateLostOrFound}
+              onChange={formik.handleChange}
+            />
+          </FormGroup>
+        </div>
+
+        {/* Contact Information Section */}
+        <div>
+          <SectionTitle>Contact Information</SectionTitle>
+          <FormGroup>
+            <Label>Contact Information</Label>
+            <Input
+              type="number"
+              name="contact"
+              placeholder="Your phone number"
+              value={formik.values.contact}
+              onChange={formik.handleChange}
+              required
+            />
+          </FormGroup>
+        </div>
+
+        {/* Upload Photo Section */}
+        <div>
+          <SectionTitle>Upload Photos</SectionTitle>
+          <FormGroup>
+            <Label>Animal Photos</Label>
+            <Input
+              type="file"
+              name="photos"
+              accept="image/*"
+              multiple
+              onChange={(event) => {
+                formik.setFieldValue("photos", event.currentTarget.files);
+              }}
+            />
+          </FormGroup>
+
+          {formik.values.photos && formik.values.photos.length > 0 && (
+            <ImagePreview>
+              {Array.from(formik.values.photos).map((file, index) => (
+                <PreviewImage
+                  key={index}
+                  src={URL.createObjectURL(file)}
+                  alt={`Preview ${index + 1}`}
+                />
+              ))}
+            </ImagePreview>
+          )}
+        </div>
+
+        {/* Submit Button */}
+        <div>
+          <Button 
+            type="submit"
+            primary
+            disabled={isSubmitting || isPending}
           >
-            <option value="">Select animal type</option>
-            <option value="dog">Dog</option>
-            <option value="cat">Cat</option>
-            <option value="bird">Bird</option>
-            <option value="reptile">Reptile</option>
-            <option value="other">Other</option>
-          </Select>
-        </FormGroup>
-
-        <FormGroup>
-          <Label>Last Seen Location</Label>
-          <TextArea
-            name="lastSeenLocation"
-            placeholder="Enter detailed location where the animal was last seen"
-            value={formik.values.lastSeenLocation}
-            onChange={formik.handleChange}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Label>Date Lost </Label>
-          <Input
-            type="date"
-            name="dateLostOrFound"
-            value={formik.values.dateLostOrFound}
-            onChange={formik.handleChange}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Label>Contact Information</Label>
-          <Input
-            type="number"
-            name="contact"
-            placeholder="Your phone number"
-            value={formik.values.contact}
-            onChange={formik.handleChange}
-            required
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Label>Upload Photos</Label>
-          <Input
-            type="file"
-            name="photos"
-            accept="image/*"
-            multiple
-            onChange={(event) => {
-              formik.setFieldValue("photos", event.currentTarget.files);
-            }}
-          />
-        </FormGroup>
-
-        {formik.values.photos && formik.values.photos.length > 0 && (
-          <ImagePreview>
-            {Array.from(formik.values.photos).map((file, index) => (
-              <PreviewImage
-                key={index}
-                src={URL.createObjectURL(file)}
-                alt={`Preview ${index + 1}`}
-              />
-            ))}
-          </ImagePreview>
-        )}
-
-        <Button 
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Submitting...' : 'Submit Report'}
-        </Button>
+            {isSubmitting || isPending ? 'Submitting...' : 'Submit Report'}
+          </Button>
+        </div>
       </form>
+
+      {isError && <ErrorMessage>{error.message}</ErrorMessage>}
     </Container>
   );
 };

@@ -1,8 +1,13 @@
 const mongoose = require('mongoose');
 
 const lostFoundSchema = new mongoose.Schema({
-    animal: { 
-        type: String 
+    animalName: { 
+        type: String
+    },
+    user : {
+        type: mongoose.Schema.Types.ObjectId, 
+            ref: 'User', 
+            required: true 
     },
     lastSeenLocation: { 
         type: String, 
@@ -23,7 +28,10 @@ const lostFoundSchema = new mongoose.Schema({
         type: String, 
         enum: ['lost', 'found'], 
         default: 'lost' 
-    }
+    },
+     photos: { 
+        type: String
+    },
 }, { timestamps: true });
 
 const LostFound = mongoose.model('LostFound', lostFoundSchema);
