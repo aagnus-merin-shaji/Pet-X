@@ -4,11 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import { Logo, Menu, Cart } from "../icons/index";
-import { avatar } from "../assets/imagedata";
 import FloatingCart from "../components/FloatingCart";
-import { useGlobalContext } from "../context/context";
 import Logout from "../components/Logout";
 import { markasreadAPI, notificationviewallAPI } from "../services/notificationServices";
+import { profilesaveAPI } from "../services/userProfileServices"; // Import profilesaveAPI
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // Bell Icon Component
@@ -62,12 +61,10 @@ const NotificationTab = ({ notifications, onMarkAllAsRead }) => (
 const navLinks = [
   { name: "home", path: "/home" },
   { name: "services", path: "/services" },
-  { 
-    name: "lostpets", 
+  {
+    name: "lostpets",
     path: "/adopter-lostfound",
-    subItems: [
-      { name: "view lost pets", path: "/adopter-lostfoundview" },
-    ]
+    subItems: [{ name: "view lost pets", path: "/adopter-lostfoundview" }],
   },
   { name: "animals", path: "/portfolio" },
   { name: "adoptions", path: "/adopter-adoptions" },
@@ -75,24 +72,33 @@ const navLinks = [
 ];
 
 const Navigator = () => {
-  const { showSidebar, showCart, hideCart, state } = useGlobalContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showBubble, setShowBubble] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [showingCart, setShowingCart] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: notifications, isLoading,error } = useQuery({
+  // Fetch notifications
+  const { data: notifications, isLoading: notificationsLoading } = useQuery({
     queryFn: notificationviewallAPI,
     queryKey: ["view-all"],
   });
 
+  // Fetch profile data
+  const { data: profileData, isLoading: profileLoading } = useQuery({
+    queryFn: profilesaveAPI,
+    queryKey: ["profile-view"],
+  });
+
   const markAsReadMutation = useMutation({
     mutationFn: markasreadAPI,
-    mutationKey: ['markas-read'],
+    mutationKey: ["markas-read"],
     onSuccess: () => {
-      queryClient.invalidateQueries(['view-all']);
+      queryClient.invalidateQueries(["view-all"]);
     },
   });
 
@@ -116,12 +122,19 @@ const Navigator = () => {
     markAsReadMutation.mutate();
   };
 
+  const handleShowSidebar = () => setShowSidebar(true);
+  const handleShowCart = () => setShowingCart(true);
+  const handleHideCart = () => setShowingCart(false);
+
+  // Default avatar if profile data isn't loaded yet
+  const profilePicture = profileData?.photos || "/default-avatar.png"; // Fallback to a default image
+
   return (
     <NavigatorWrapper>
       <nav>
         <div className="nav-left">
           <motion.button
-            onClick={showSidebar}
+            onClick={handleShowSidebar}
             className="menu-btn"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -171,10 +184,7 @@ const Navigator = () => {
                         exit={{ opacity: 0, y: -20 }}
                       >
                         {link.subItems.map((subItem, subIdx) => (
-                          <motion.li
-                            key={subIdx}
-                            whileHover={{ scale: 1.05 }}
-                          >
+                          <motion.li key={subIdx} whileHover={{ scale: 1.05 }}>
                             <Link to={subItem.path}>{subItem.name}</Link>
                           </motion.li>
                         ))}
@@ -200,20 +210,20 @@ const Navigator = () => {
               whileTap={{ scale: 0.9 }}
             >
               <BellIcon />
-              {state.unreadNotifications > 0 && (
+              {unreadNotifications > 0 && (
                 <motion.span
                   className="notification-badge"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 260, damping: 20 }}
                 >
-                  {state.unreadNotifications}
+                  {unreadNotifications}
                 </motion.span>
               )}
             </motion.button>
             <AnimatePresence>
               {showNotifications && (
-                <NotificationTab 
+                <NotificationTab
                   notifications={notifications || []}
                   onMarkAllAsRead={handleMarkAllAsRead}
                 />
@@ -241,19 +251,19 @@ const Navigator = () => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
-            <img src={avatar} alt="avatar" />
+            <img src={profilePicture} alt="avatar" /> {/* Use fetched profile picture */}
           </motion.button>
 
-          <Logout/>
+          <Logout />
 
-          <FloatingCart className={`${state.showingCart ? "active" : ""}`} />
+          <FloatingCart className={`${showingCart ? "active" : ""}`} />
         </div>
       </nav>
     </NavigatorWrapper>
   );
 };
 
-// Styled Components
+// Styled Components (unchanged)
 const NavigatorWrapper = styled.header`
   position: relative;
   padding: 2.4rem;
@@ -337,7 +347,7 @@ const NavigatorWrapper = styled.header`
 
         li {
           position: relative;
-          
+
           a {
             text-decoration: none;
             font-size: 1.5rem;

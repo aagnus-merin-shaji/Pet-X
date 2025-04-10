@@ -3,6 +3,9 @@ const bcrypt = require("bcryptjs");
 const asyncHandler=require("express-async-handler")
 const express=require('express');
 const User = require("../models/userModel");
+const crypto = require("crypto")
+const nodemailer = require("nodemailer");
+const { log } = require("console");
 
 const userController={
     register : asyncHandler(async(req,res)=>{        
@@ -57,47 +60,60 @@ const userController={
         }),
 
     profile: asyncHandler(async (req, res) => {
-        const { 
-            username, bio, address, interests, livelihood, adopterPreferences, 
-            lifestyleInfo, experienceWithPets, desiredPetCharacteristics, 
-            email, password, role, isApproved 
-        } = req.body;
-
-          const userId = req.user.id;         
+            const {
+              username,
+              bio,
+              address,
+              livelihood,
+              adopterPreferences,
+              lifestyleInfo,
+              experienceWithPets,
+              desiredPetCharacteristics,
+              email,
+              currentPassword,
+              newPassword,
+            } = req.body;
+          
+            const userId = req.user.id; // Assumes userAuthentication middleware sets req.user
             let userProfile = await User.findById(userId);
             if (!userProfile) {
-                return res.status(404).json({ message: "User not found" });
+              return res.status(404).json({ message: "User not found" });
             }
-            
-            userProfile.username = username ?? userProfile.username;
-            userProfile.bio = bio ?? userProfile.bio;
-            userProfile.address = address ?? userProfile.address;
-            userProfile.interests  = interests  ?? userProfile.interests ;
-            userProfile.livelihood = livelihood ?? userProfile.livelihood;
-            userProfile.adopterPreferences  = adopterPreferences  ?? userProfile.adopterPreferences ;
-        userProfile.adopterPreferences;
-              userProfile.lifestyleInfo =lifestyleInfo  ??
-        userProfile.lifestyleInfo;
-              userProfile.experienceWithPets  =experienceWithPets ??
-        userProfile.experienceWithPets;
-              userProfile.desiredPetCharacteristics = desiredPetCharacteristics  
-        ??userProfile.desiredPetCharacteristics;
-              userProfile.email = email ?? userProfile.email;
-              userProfile.role = role ?? userProfile.role;
-              userProfile.isApproved = isApproved ?? userProfile.isApproved;
-              if (password) {
-                const bcrypt = require("bcryptjs");
-                const salt = await bcrypt.genSalt(10);
-                userProfile.password = await bcrypt.hash(password, salt);
+          
+            // Update fields if provided
+            userProfile.username = username || userProfile.username;
+            userProfile.bio = bio || userProfile.bio;
+            userProfile.address = address || userProfile.address;
+            userProfile.livelihood = livelihood || userProfile.livelihood;
+            userProfile.adopterPreferences = adopterPreferences || userProfile.adopterPreferences;
+            userProfile.lifestyleInfo = lifestyleInfo || userProfile.lifestyleInfo;
+            userProfile.experienceWithPets = experienceWithPets || userProfile.experienceWithPets;
+            userProfile.desiredPetCharacteristics =
+              desiredPetCharacteristics || userProfile.desiredPetCharacteristics;
+            userProfile.email = email || userProfile.email;
+          
+            // Handle file upload
+            if (req.file) {
+              userProfile.photos = req.file.path;
             }
-        
+          
+            // Handle password update
+            if (currentPassword && newPassword) {
+              const isMatch = await bcrypt.compare(currentPassword, userProfile.password);
+              if (!isMatch) {
+                return res.status(400).json({ message: "Current password is incorrect" });
+              }
+              const salt = await bcrypt.genSalt(10);
+              userProfile.password = await bcrypt.hash(newPassword, salt);
+            }
+          
             try {
-                await userProfile.save();
-                res.status(200).json({ message: "Profile updated successfully", userProfile });
+              await userProfile.save();
+              res.status(200).json({ message: "Profile updated successfully", userProfile });
             } catch (error) {
-                res.status(500).json({ message: "Error updating profile", error: error.message });
+              res.status(500).json({ message: "Error updating profile", error: error.message });
             }
-    }),
+          }),
         
 
     getUserProfile : asyncHandler(async (req, res) => {
@@ -136,6 +152,7 @@ const userController={
 
         const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}&email=${email}`;
 
+        
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
@@ -156,12 +173,15 @@ const userController={
     resetPassword: asyncHandler(async (req, res) => {
         const { email, token, newPassword } = req.body;
         const user = await User.findOne({ email });
-
+        console.log(email,token);
+        
         if (!user || !user.resetPasswordToken) {
             return res.status(400).json({ message: "Invalid or expired token" });
         }
 
         const isTokenValid = await bcrypt.compare(token, user.resetPasswordToken);
+        console.log(isTokenValid,user.resetPasswordToken,user);
+        
         if (!isTokenValid || user.resetPasswordExpires < Date.now()) {
             return res.status(400).json({ message: "Invalid or expired token" });
         }
@@ -173,6 +193,8 @@ const userController={
 
         res.json({ message: "Password reset successful" });
     }),
+    
+    
     getWishlist: asyncHandler(async (req, res) => {
         const userProfile = await User.findById(req.user.id).populate('wishlist');
 

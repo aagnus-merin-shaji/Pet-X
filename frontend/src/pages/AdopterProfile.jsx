@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { avatar } from "../assets/imagedata";
-import { useMutation, useQuery,  useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useFormik } from "formik";
 import { profileeditAPI, profilepasswordAPI, profilesaveAPI } from "../services/userProfileServices";
 import { useNavigate } from "react-router-dom";
 
@@ -10,83 +9,134 @@ const AdopterProfilePage = () => {
   const queryClient = useQueryClient();
   const [isEditMode, setIsEditMode] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmNewPassword: "",
-  });
-  
+  const navigate = useNavigate();
+
   // Fetch adopter profile data
   const { data, isLoading, isError, error } = useQuery({
     queryFn: profilesaveAPI,
-    queryKey: ['profile-view'],
+    queryKey: ["profile-view"],
   });
+
+  // Main profile form
+  const profileForm = useFormik({
+    initialValues: {
+      username: "",
+      email: "",
+      bio: "",
+      address: "",
+      livelihood: "",
+      adopterPreferences: "",
+      lifestyleInfo: "",
+      experienceWithPets: "",
+      desiredPetCharacteristics: "",
+      photos: null,
+      imagePreview: "",
+    },
+    onSubmit: async (values) => {
+      const formData = new FormData();
+
+      // Append all fields to formData, excluding imagePreview
+      Object.entries(values).forEach(([key, value]) => {
+        if (key !== "imagePreview" && value !== null && value !== undefined) {
+          formData.append(key, value);
+        }
+      });
+
+      try {
+        await updateProfileMutation.mutateAsync(formData);
+        setIsEditMode(false);
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        alert("❌ Error updating profile: " + error.message);
+      }
+    },
+  });
+
+  const handlePhotoChange = (event) => {
+    const file = event.currentTarget.files[0];
+    if (file) {
+      profileForm.setFieldValue("photos", file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.readyState === 2) {
+          profileForm.setFieldValue("imagePreview", reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Password form
+  const passwordForm = useFormik({
+    initialValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmNewPassword: "",
+    },
+    onSubmit: async (values) => {
+      if (values.newPassword !== values.confirmNewPassword) {
+        alert("New password and confirm password do not match.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("currentPassword", values.currentPassword);
+      formData.append("newPassword", values.newPassword);
+
+      try {
+        await changePasswordMutation.mutateAsync(formData);
+        setShowChangePassword(false);
+      } catch (error) {
+        console.error("Error changing password:", error);
+        alert("❌ Error changing password: " + error.message);
+      }
+    },
+  });
+
+  // Set form values when data is loaded
   useEffect(() => {
     if (data) {
-      setProfileData(data);
+      profileForm.setValues({
+        username: data.username || "",
+        email: data.email || "",
+        bio: data.bio || "",
+        address: data.address || "",
+        livelihood: data.livelihood || "",
+        adopterPreferences: data.adopterPreferences || "",
+        lifestyleInfo: data.lifestyleInfo || "",
+        experienceWithPets: data.experienceWithPets || "",
+        desiredPetCharacteristics: data.desiredPetCharacteristics || "",
+        photos: null,
+        imagePreview: data.photos || "", // Assuming photos is the URL/path from backend
+      });
     }
   }, [data]);
 
-// Local state for form data
-const [profileData, setProfileData] = useState(data); 
-const navigate =useNavigate()
   // Mutation for updating profile
-   const { mutateAsync:changePasswordMutation, } = useMutation({
-          mutationFn: profilepasswordAPI, // Ensure this function is defined in userServices.js
-          mutationKey: ["edit-password"],
-          onSuccess: () => {
-            queryClient.invalidateQueries(['adopter-profile']);
-            alert('✅ Password updated successfully!');
-            navigate('/home');
-          },
-          onError: (error) => {
-            alert('❌ Error updating password: ' + error.message);
-          },
-        });
-
-  // Mutation for changing password
-  const { mutateAsync:updateProfileMutation, isPending, } = useMutation({
-    mutationKey: ['edit-profile'],
+  const updateProfileMutation = useMutation({
+    mutationKey: ["edit-profile"],
     mutationFn: profileeditAPI,
     onSuccess: () => {
-      queryClient.invalidateQueries(['adopter-profile']);
-      alert('✅ Profile updated successfully!');
-      navigate('/home');
+      queryClient.invalidateQueries(["profile-view"]);
+      alert("✅ Profile updated successfully!");
     },
     onError: (error) => {
-      alert('❌ Error updating profile: ' + error.message);
+      alert("❌ Error updating profile: " + error.message);
     },
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProfileData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    updateProfileMutation(profileData); // Use `editData` instead of `profileData` if needed
-  };
-
-  const handlePasswordSubmit = (e) => {
-    e.preventDefault();
-    if (passwordData.newPassword !== passwordData.confirmNewPassword) {
-      alert("New password and confirm password do not match.");
-      return;
-    }
-    changePasswordMutation(passwordData);
-  };
+  // Mutation for changing password
+  const changePasswordMutation = useMutation({
+    mutationFn: profileeditAPI, // Reusing profileeditAPI since it's the same endpoint
+    mutationKey: ["edit-password"],
+    onSuccess: () => {
+      queryClient.invalidateQueries(["profile-view"]);
+      alert("✅ Password updated successfully!");
+    },
+    onError: (error) => {
+      alert("❌ Error updating password: " + error.message);
+    },
+  });
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error: {error.message}</div>;
@@ -95,39 +145,54 @@ const navigate =useNavigate()
     <ProfileWrapper>
       <div className="profile-container">
         <div className="profile-header">
-          {/* <img src={avatar} alt="Adopter Profile" className="profile-image" /> */}
+          {isEditMode ? (
+            <div className="photo-upload-wrapper">
+              <img src={profileForm.values.imagePreview} alt="" className="profile-image" />
+              <label className="upload-label">
+                Change Photo
+                <input
+                  type="file"
+                  name="photos"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  className="file-input"
+                />
+              </label>
+            </div>
+          ) : (
+            <img src={profileForm.values.imagePreview} alt="" className="profile-image" />
+          )}
+
           {isEditMode ? (
             <input
               type="text"
               name="username"
-              value={profileData?.username || ""}
-              onChange={handleInputChange}
+              value={profileForm.values.username}
+              onChange={profileForm.handleChange}
               className="edit-input"
             />
           ) : (
-            <h2>{profileData?.username || "Username"}</h2>
+            <h2>{data?.username || "Username"}</h2>
           )}
         </div>
 
         {isEditMode ? (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={profileForm.handleSubmit}>
             <div className="profile-details">
               <div className="detail-item">
-              
                 <label>Email</label>
                 <input
                   type="email"
                   name="email"
-                  value={profileData?.email || ""}
-                  onChange={handleInputChange}
+                  value={profileForm.values.email}
+                  onChange={profileForm.handleChange}
                   className="edit-input"
                 />
-              
                 <label>Bio</label>
                 <textarea
                   name="bio"
-                  value={profileData?.bio || ""}
-                  onChange={handleInputChange}
+                  value={profileForm.values.bio}
+                  onChange={profileForm.handleChange}
                   className="edit-input"
                   rows="4"
                 />
@@ -137,8 +202,8 @@ const navigate =useNavigate()
                 <input
                   type="text"
                   name="address"
-                  value={profileData?.address || ""}
-                  onChange={handleInputChange}
+                  value={profileForm.values.address}
+                  onChange={profileForm.handleChange}
                   className="edit-input"
                 />
               </div>
@@ -147,8 +212,8 @@ const navigate =useNavigate()
                 <input
                   type="text"
                   name="livelihood"
-                  value={profileData?.livelihood || ""}
-                  onChange={handleInputChange}
+                  value={profileForm.values.livelihood}
+                  onChange={profileForm.handleChange}
                   className="edit-input"
                 />
               </div>
@@ -156,8 +221,8 @@ const navigate =useNavigate()
                 <label>Adopter Preferences</label>
                 <textarea
                   name="adopterPreferences"
-                  value={profileData?.adopterPreferences || ""}
-                  onChange={handleInputChange}
+                  value={profileForm.values.adopterPreferences}
+                  onChange={profileForm.handleChange}
                   className="edit-input"
                   rows="4"
                 />
@@ -166,8 +231,8 @@ const navigate =useNavigate()
                 <label>Lifestyle Info</label>
                 <textarea
                   name="lifestyleInfo"
-                  value={profileData?.lifestyleInfo || ""}
-                  onChange={handleInputChange}
+                  value={profileForm.values.lifestyleInfo}
+                  onChange={profileForm.handleChange}
                   className="edit-input"
                   rows="4"
                 />
@@ -176,8 +241,8 @@ const navigate =useNavigate()
                 <label>Experience With Pets</label>
                 <textarea
                   name="experienceWithPets"
-                  value={profileData?.experienceWithPets || ""}
-                  onChange={handleInputChange}
+                  value={profileForm.values.experienceWithPets}
+                  onChange={profileForm.handleChange}
                   className="edit-input"
                   rows="4"
                 />
@@ -186,13 +251,12 @@ const navigate =useNavigate()
                 <label>Desired Pet Characteristics</label>
                 <textarea
                   name="desiredPetCharacteristics"
-                  value={profileData?.desiredPetCharacteristics || ""}
-                  onChange={handleInputChange}
+                  value={profileForm.values.desiredPetCharacteristics}
+                  onChange={profileForm.handleChange}
                   className="edit-input"
                   rows="4"
                 />
               </div>
-              
             </div>
             <button type="submit" className="save-button" disabled={updateProfileMutation.isLoading}>
               {updateProfileMutation.isLoading ? "Saving..." : "Save Changes"}
@@ -210,38 +274,37 @@ const navigate =useNavigate()
           <>
             <div className="profile-details">
               <div className="detail-item">
-              <div className="detail-item">
                 <label>Email</label>
-                <p>{profileData?.email || ""}</p>
+                <p>{data?.email || ""}</p>
               </div>
+              <div className="detail-item">
                 <label>Bio</label>
-                <p>{profileData?.bio || ""}</p>
+                <p>{data?.bio || ""}</p>
               </div>
               <div className="detail-item">
                 <label>Address</label>
-                <p>{profileData?.address || ""}</p>
+                <p>{data?.address || ""}</p>
               </div>
               <div className="detail-item">
                 <label>Livelihood</label>
-                <p>{profileData?.livelihood || ""}</p>
+                <p>{data?.livelihood || ""}</p>
               </div>
               <div className="detail-item">
                 <label>Adopter Preferences</label>
-                <p>{profileData?.adopterPreferences || ""}</p>
+                <p>{data?.adopterPreferences || ""}</p>
               </div>
               <div className="detail-item">
                 <label>Lifestyle Info</label>
-                <p>{profileData?.lifestyleInfo || ""}</p>
+                <p>{data?.lifestyleInfo || ""}</p>
               </div>
               <div className="detail-item">
                 <label>Experience With Pets</label>
-                <p>{profileData?.experienceWithPets || ""}</p>
+                <p>{data?.experienceWithPets || ""}</p>
               </div>
               <div className="detail-item">
                 <label>Desired Pet Characteristics</label>
-                <p>{profileData?.desiredPetCharacteristics || ""}</p>
+                <p>{data?.desiredPetCharacteristics || ""}</p>
               </div>
-              
             </div>
             <button className="edit-button" onClick={() => setIsEditMode(true)}>
               Edit Profile
@@ -258,14 +321,14 @@ const navigate =useNavigate()
         {showChangePassword && (
           <div className="change-password-form">
             <h3>Change Password</h3>
-            <form onSubmit={handlePasswordSubmit}>
+            <form onSubmit={passwordForm.handleSubmit}>
               <div className="detail-item">
                 <label>Current Password</label>
                 <input
                   type="password"
                   name="currentPassword"
-                  value={passwordData.currentPassword}
-                  onChange={handlePasswordChange}
+                  value={passwordForm.values.currentPassword}
+                  onChange={passwordForm.handleChange}
                   className="edit-input"
                   required
                 />
@@ -275,8 +338,8 @@ const navigate =useNavigate()
                 <input
                   type="password"
                   name="newPassword"
-                  value={passwordData.newPassword}
-                  onChange={handlePasswordChange}
+                  value={passwordForm.values.newPassword}
+                  onChange={passwordForm.handleChange}
                   className="edit-input"
                   required
                 />
@@ -286,14 +349,14 @@ const navigate =useNavigate()
                 <input
                   type="password"
                   name="confirmNewPassword"
-                  value={passwordData.confirmNewPassword}
-                  onChange={handlePasswordChange}
+                  value={passwordForm.values.confirmNewPassword}
+                  onChange={passwordForm.handleChange}
                   className="edit-input"
                   required
                 />
               </div>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="save-button"
                 disabled={changePasswordMutation.isLoading}
               >
@@ -315,7 +378,6 @@ const navigate =useNavigate()
   );
 };
 
-// Styled Components remain the same as in your original code
 const ProfileWrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -556,6 +618,23 @@ const ProfileWrapper = styled.div`
         }
       }
     }
+  }
+
+  .photo-upload-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  .upload-label {
+    display: block;
+    margin-top: 0.5rem;
+    color: #007bff;
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .file-input {
+    display: none;
   }
 `;
 

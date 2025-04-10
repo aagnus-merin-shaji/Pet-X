@@ -25,6 +25,9 @@ desiredPetCharacteristics: { type: String, },
     type: String, 
     minLength:[5,"Minimum 5 characters required"]
   },
+  resetPasswordToken:{
+    type: String
+  },
   role: { 
     type: String, 
     enum: ["shelter", "clinic", "individual", "admin"], 
@@ -33,6 +36,9 @@ desiredPetCharacteristics: { type: String, },
   isApproved: { 
     type: Boolean, 
     default: false 
+  },
+  photos :{
+    type: String
   },
 }, { timestamps: true });
 

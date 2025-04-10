@@ -39,6 +39,7 @@ import LostFound from "./pages/adopter/LostFound";
 import LostFoundview from "./pages/adopter/LostFoundview";
 import ShelterContract from "./pages/shelter/ShelterContract";
 import { useSelector } from "react-redux";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   const { state } = useGlobalContext();
@@ -166,6 +167,8 @@ function App() {
           <Route path="/register" element={<Register />} /> {/* Adopter Register */}
           <Route path="/shelter-register" element={<ShelterRegister />} /> {/* Shelter Register */}
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
           <Route path="*" element={<Login />} />
         </Routes>
       )}

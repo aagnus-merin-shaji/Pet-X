@@ -53,18 +53,14 @@ export const usersviewAPI= async()=>{
 
 export const usersforgotAPI= async(data)=>{
     const response = await axios.post(`${BASE_URL}/users/forgot`,data, {
-        headers:{
-            Authorization: `Bearer ${token}`
-        } // Make sure credentials (cookies) are sent
+        withCredentials: true,  
     });
     return response.data
 }
 
-export const usersresetAPI= async(data)=>{
-    const response = await axios.post(`${BASE_URL}/users/reset`,data, {
-        headers:{
-            Authorization: `Bearer ${token}`
-        }  // Make sure credentials (cookies) are sent
+export const usersresetAPI = async (data) => {
+    const response = await axios.post(`${BASE_URL}/users/reset`, data, {
+      withCredentials: true, // Ensure cookies are sent if needed (e.g., for sessions)
     });
-    return response.data
-}
+    return response.data;
+  };

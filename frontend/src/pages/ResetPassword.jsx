@@ -1,46 +1,69 @@
-import React, { useState } from "react";  // Add useState import
+import React, { useState } from "react";
 import styled from "styled-components";
-import { usersforgotAPI } from "../services/userServices";
 import { useMutation } from "@tanstack/react-query";
+import { useParams } from "react-router-dom";
+import { usersresetAPI } from "../services/userServices";
 
-const ForgotPassword = () => {
-  const [email, setEmail] = useState("");  // Add state for email
+const ResetPassword = () => {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const { token, email } = useParams(); // Extract token and email from URL
 
   const { mutateAsync, isPending, isError, error } = useMutation({
-    mutationFn: usersforgotAPI,
-    mutationKey: ["forgot-password"],  // Changed mutationKey to be more specific
+    mutationFn: usersresetAPI,
+    mutationKey: ["reset-password"],
   });
 
-  const handleSubmit = async (e) => {
+  const handleReset = async (e) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
     try {
-      await mutateAsync({ email: email });  // Send email as an object
-      alert("Password reset link sent to your email!");
+      await mutateAsync({
+        email:email, // Pass email from URL
+        token:token, // Pass token from URL
+        newPassword: password,
+      });
+      alert("Password successfully reset! You can now log in.");
+      // Optionally redirect to login page (e.g., window.location.href = "/login")
     } catch (err) {
       console.error("Reset password error:", err);
-      alert("Failed to send reset link. Please try again.");
+      alert("Failed to reset password. Please try again.");
     }
   };
 
   return (
-    <ForgotPasswordWrapper>
+    <ResetPasswordWrapper>
       <div className="form-container">
-        <h2>Forgot Password</h2>
-        <p>Enter your email address to reset your password.</p>
-        <form onSubmit={handleSubmit}>
+        <h2>Reset Password</h2>
+        <p>Enter your new password below.</p>
+        <form onSubmit={handleReset}>
           <div className="input-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="password">New Password</label>
             <input
-              type="email"
-              id="email"
-              placeholder="Enter your email"
-              value={email}  // Bind value to state
-              onChange={(e) => setEmail(e.target.value)}  // Update state on change
+              type="password"
+              id="password"
+              placeholder="Enter new password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="input-group">
+            <label htmlFor="confirm-password">Confirm Password</label>
+            <input
+              type="password"
+              id="confirm-password"
+              placeholder="Confirm new password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
           </div>
           <button type="submit" disabled={isPending}>
-            {isPending ? "Sending..." : "Reset Password"}
+            {isPending ? "Resetting..." : "Reset Password"}
           </button>
           {isError && (
             <p style={{ color: "red" }}>
@@ -49,12 +72,12 @@ const ForgotPassword = () => {
           )}
         </form>
       </div>
-    </ForgotPasswordWrapper>
+    </ResetPasswordWrapper>
   );
 };
 
-// Styled Components remain unchanged
-const ForgotPasswordWrapper = styled.div`
+// Styled components remain unchanged
+const ResetPasswordWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -69,8 +92,8 @@ const ForgotPasswordWrapper = styled.div`
     padding: 2.5rem;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    width: 100%;
+    max-width: 400 HEARTpx;
+    width: 50%;
     text-align: center;
 
     h2 {
@@ -139,4 +162,4 @@ const ForgotPasswordWrapper = styled.div`
   }
 `;
 
-export default ForgotPassword;
+export default ResetPassword;

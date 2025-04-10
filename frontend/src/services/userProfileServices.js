@@ -15,7 +15,7 @@ export const profilesaveAPI= async()=>{
 
 export const profileremoveAPI= async()=>{
     const response = await axios.put(`${BASE_URL}/profile/remove`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+        withCredentials: true,  
     });
     return response.data
 }
@@ -23,8 +23,9 @@ export const profileremoveAPI= async()=>{
 export const profileeditAPI= async(data)=>{
     const response = await axios.put(`${BASE_URL}/users/edit`,data, {
         headers:{
-            Authorization: `Bearer ${token}`
-        }   // Make sure credentials (cookies) are sent
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+        }   
     });
     return response.data
 }
@@ -33,7 +34,7 @@ export const profilepasswordAPI= async(data)=>{
     const response = await axios.put(`${BASE_URL}/users/changepass`,data, {
         headers:{
             Authorization: `Bearer ${token}`
-        }   // Make sure credentials (cookies) are sent
+        }   
     });
     return response.data
 }
