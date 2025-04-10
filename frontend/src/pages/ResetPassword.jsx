@@ -1,36 +1,46 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useMutation } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { usersresetAPI } from "../services/userServices";
 
 const ResetPassword = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const email = searchParams.get("email");
+  const token = searchParams.get("token");
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { token, email } = useParams(); // Extract token and email from URL
+  const [message, setMessage] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
 
-  const { mutateAsync, isPending, isError, error } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: usersresetAPI,
     mutationKey: ["reset-password"],
   });
 
   const handleReset = async (e) => {
     e.preventDefault();
+    setMessage(null);
+    setErrorMsg(null);
+
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      setErrorMsg("Passwords do not match");
       return;
     }
+
     try {
       await mutateAsync({
-        email:email, // Pass email from URL
-        token:token, // Pass token from URL
+        email: email,
+        token: token,
         newPassword: password,
       });
-      alert("Password successfully reset! You can now log in.");
-      // Optionally redirect to login page (e.g., window.location.href = "/login")
+      setMessage("Password successfully reset! Redirecting to login...");
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      console.error("Reset password error:", err);
-      alert("Failed to reset password. Please try again.");
+      setErrorMsg(err?.response?.data?.message || "Failed to reset password. Please try again.");
     }
   };
 
@@ -39,44 +49,46 @@ const ResetPassword = () => {
       <div className="form-container">
         <h2>Reset Password</h2>
         <p>Enter your new password below.</p>
-        <form onSubmit={handleReset}>
-          <div className="input-group">
-            <label htmlFor="password">New Password</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Enter new password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <div className="input-group">
-            <label htmlFor="confirm-password">Confirm Password</label>
-            <input
-              type="password"
-              id="confirm-password"
-              placeholder="Confirm new password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" disabled={isPending}>
-            {isPending ? "Resetting..." : "Reset Password"}
-          </button>
-          {isError && (
-            <p style={{ color: "red" }}>
-              {error?.message || "An error occurred"}
-            </p>
-          )}
-        </form>
+
+        {message ? (
+          <div className="success-message">{message}</div>
+        ) : (
+          <form onSubmit={handleReset}>
+            <div className="input-group">
+              <label htmlFor="password">New Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="Enter new password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <div className="input-group">
+              <label htmlFor="confirm-password">Confirm Password</label>
+              <input
+                type="password"
+                id="confirm-password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit" disabled={isPending}>
+              {isPending ? "Resetting..." : "Reset Password"}
+            </button>
+            {errorMsg && (
+              <p className="error-message">{errorMsg}</p>
+            )}
+          </form>
+        )}
       </div>
     </ResetPasswordWrapper>
   );
 };
 
-// Styled components remain unchanged
 const ResetPasswordWrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -92,8 +104,8 @@ const ResetPasswordWrapper = styled.div`
     padding: 2.5rem;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    max-width: 400 HEARTpx;
-    width: 50%;
+    max-width: 400px;
+    width: 30%;
     text-align: center;
 
     h2 {
@@ -158,6 +170,21 @@ const ResetPasswordWrapper = styled.div`
           cursor: not-allowed;
         }
       }
+
+      .error-message {
+        color: red;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+    }
+
+    .success-message {
+      background-color: #e6ffed;
+      color: #228b22;
+      border: 1px solid #b5e2b5;
+      padding: 1rem;
+      border-radius: 8px;
+      font-weight: 500;
     }
   }
 `;

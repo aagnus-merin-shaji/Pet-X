@@ -128,38 +128,33 @@ const userController={
     forgotPassword: asyncHandler(async (req, res) => {
         const { email } = req.body;
         const user = await User.findOne({ email });
-
+        console.log(email); 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-
         // Generate Reset Token
         const resetToken = crypto.randomBytes(32).toString("hex");
         const hashedToken = await bcrypt.hash(resetToken, 10);
-        
         user.resetPasswordToken = hashedToken;
         user.resetPasswordExpires = Date.now() + 3600000; // 1 hour expiry
         await user.save();
-
-        // Send Email
+       // Send Email
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
             },
-        });
+  });
 
         const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}&email=${email}`;
 
-        
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
             subject: "Password Reset Request",
             text: `Click on this link to reset your password: ${resetLink}`,
         };
-
         transporter.sendMail(mailOptions, (err, info) => {
             if (err) {
                 console.error(err);
@@ -170,29 +165,24 @@ const userController={
     }),
 
     // Reset Password - Verifies Token & Updates Password
-    resetPassword: asyncHandler(async (req, res) => {
+        resetPassword: asyncHandler(async (req, res) => {
         const { email, token, newPassword } = req.body;
         const user = await User.findOne({ email });
-        console.log(email,token);
-        
+        console.log(email, token, newPassword);
         if (!user || !user.resetPasswordToken) {
             return res.status(400).json({ message: "Invalid or expired token" });
         }
-
         const isTokenValid = await bcrypt.compare(token, user.resetPasswordToken);
-        console.log(isTokenValid,user.resetPasswordToken,user);
-        
         if (!isTokenValid || user.resetPasswordExpires < Date.now()) {
             return res.status(400).json({ message: "Invalid or expired token" });
         }
-
         user.password = await bcrypt.hash(newPassword, 10);
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
         await user.save();
-
         res.json({ message: "Password reset successful" });
     }),
+
     
     
     getWishlist: asyncHandler(async (req, res) => {

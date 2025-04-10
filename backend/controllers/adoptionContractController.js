@@ -2,6 +2,7 @@ const AdoptionContract = require('../models/adoptionContractModel');
 const asyncHandler = require('express-async-handler');
 const Adoption = require('../models/adoptionModel');
 const Animal = require('../models/animalModel');
+const Shelter = require('../models/shelterModel');
 
 const adoptionContractController = {
     // Add new adoption contract
@@ -28,6 +29,15 @@ const adoptionContractController = {
             filter.shelterId = shelterId;  // Filter by shelter
         }
         const adoptions = await Adoption.find(filter);
+        const adoptionContracts = await AdoptionContract.find({ adoptionId: { $in: adoptions.map(adoption => adoption._id) }}).populate('adoptionId');
+        
+        res.status(200).json(adoptionContracts);
+    }),
+
+    getContractsByShelter: asyncHandler(async (req, res) => {
+        const shelter=await Shelter.findOne({userId:req.user.id})
+        const shelterId=shelter.id
+        const adoptions = await Adoption.find({shelterId});
         const adoptionContracts = await AdoptionContract.find({ adoptionId: { $in: adoptions.map(adoption => adoption._id) }}).populate('adoptionId');
         
         res.status(200).json(adoptionContracts);

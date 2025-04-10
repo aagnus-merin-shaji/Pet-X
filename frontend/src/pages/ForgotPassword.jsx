@@ -1,24 +1,26 @@
-import React, { useState } from "react";  // Add useState import
+import React, { useState } from "react";
 import styled from "styled-components";
 import { usersforgotAPI } from "../services/userServices";
 import { useMutation } from "@tanstack/react-query";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState("");  // Add state for email
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState(null);
 
   const { mutateAsync, isPending, isError, error } = useMutation({
     mutationFn: usersforgotAPI,
-    mutationKey: ["forgot-password"],  // Changed mutationKey to be more specific
+    mutationKey: ["forgot-password"],
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await mutateAsync({ email: email });  // Send email as an object
-      alert("Password reset link sent to your email!");
+      await mutateAsync({ email: email });
+      setTimeout(() => {
+        setMessage(`If an account with ${email} exists, a reset link has been sent.`);
+      }, 1000);
     } catch (err) {
       console.error("Reset password error:", err);
-      alert("Failed to send reset link. Please try again.");
     }
   };
 
@@ -27,33 +29,39 @@ const ForgotPassword = () => {
       <div className="form-container">
         <h2>Forgot Password</h2>
         <p>Enter your email address to reset your password.</p>
-        <form onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              placeholder="Enter your email"
-              value={email}  // Bind value to state
-              onChange={(e) => setEmail(e.target.value)}  // Update state on change
-              required
-            />
+
+        {message ? (
+          <div className="success-message">
+            {message}
           </div>
-          <button type="submit" disabled={isPending}>
-            {isPending ? "Sending..." : "Reset Password"}
-          </button>
-          {isError && (
-            <p style={{ color: "red" }}>
-              {error?.message || "An error occurred"}
-            </p>
-          )}
-        </form>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <div className="input-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit" disabled={isPending}>
+              {isPending ? "Sending..." : "Reset Password"}
+            </button>
+            {isError && (
+              <p className="error-message">
+                {error?.message || "An error occurred"}
+              </p>
+            )}
+          </form>
+        )}
       </div>
     </ForgotPasswordWrapper>
   );
 };
 
-// Styled Components remain unchanged
 const ForgotPasswordWrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -135,6 +143,20 @@ const ForgotPasswordWrapper = styled.div`
           cursor: not-allowed;
         }
       }
+
+      .error-message {
+        color: red;
+        font-size: 0.9rem;
+      }
+    }
+
+    .success-message {
+      background-color: #e6ffed;
+      color: #228b22;
+      border: 1px solid #b5e2b5;
+      padding: 1rem;
+      border-radius: 8px;
+      font-weight: 500;
     }
   }
 `;
