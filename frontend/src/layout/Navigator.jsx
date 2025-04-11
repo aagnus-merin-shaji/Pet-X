@@ -61,11 +61,8 @@ const NotificationTab = ({ notifications, onMarkAllAsRead }) => (
 const navLinks = [
   { name: "home", path: "/home" },
   { name: "services", path: "/services" },
-  {
-    name: "lostpets",
-    path: "/adopter-lostfound",
-    subItems: [{ name: "view lost pets", path: "/adopter-lostfoundview" }],
-  },
+  {name: "lostpets",path: "/adopter-lostfound",},
+  {name : "petsreports",path:"adopter-lostfoundview"},
   { name: "animals", path: "/portfolio" },
   { name: "adoptions", path: "/adopter-adoptions" },
   { name: "contact", path: "/contact" },

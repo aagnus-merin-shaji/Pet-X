@@ -107,7 +107,7 @@ const AdopterProfilePage = () => {
         experienceWithPets: data.experienceWithPets || "",
         desiredPetCharacteristics: data.desiredPetCharacteristics || "",
         photos: null,
-        imagePreview: data.photos || "", // Assuming photos is the URL/path from backend
+        imagePreview: data.photos || "",
       });
     }
   }, [data]);
@@ -127,7 +127,7 @@ const AdopterProfilePage = () => {
 
   // Mutation for changing password
   const changePasswordMutation = useMutation({
-    mutationFn: profileeditAPI, // Reusing profileeditAPI since it's the same endpoint
+    mutationFn: profileeditAPI,
     mutationKey: ["edit-password"],
     onSuccess: () => {
       queryClient.invalidateQueries(["profile-view"]);
@@ -383,49 +383,61 @@ const ProfileWrapper = styled.div`
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
   padding: 2rem;
+  font-family: 'Inter', sans-serif;
 
   .profile-container {
-    background-color: #ffffff;
-    padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    padding: 3rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 700px;
+    max-width: 800px;
     text-align: center;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+    }
 
     .profile-header {
-      margin-bottom: 2.5rem;
+      margin-bottom: 3rem;
 
       .profile-image {
-        width: 120px;
-        height: 120px;
+        width: 140px;
+        height: 140px;
         border-radius: 50%;
         object-fit: cover;
         margin-bottom: 1.5rem;
-        border: 3px solid #e9ecef;
+        border: 4px solid #4fc3f7;
+        transition: transform 0.3s ease;
+
+        &:hover {
+          transform: scale(1.05);
+        }
       }
 
       h2 {
-        font-size: 2rem;
-        color: #343a40;
+        font-size: 2.2rem;
+        color: #263238;
         margin-bottom: 0.5rem;
-        font-weight: 600;
+        font-weight: 700;
+        letter-spacing: 0.5px;
       }
 
       .edit-input {
         width: 100%;
-        padding: 0.75rem;
-        font-size: 1rem;
-        border: 1px solid #ced4da;
-        border-radius: 6px;
-        margin-bottom: 1rem;
+        padding: 0.9rem;
+        font-size: 1.1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 1.2rem;
         transition: border-color 0.3s ease, box-shadow 0.3s ease;
 
         &:focus {
-          border-color: #007bff;
-          box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+          border-color: #4fc3f7;
+          box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.2);
           outline: none;
         }
       }
@@ -433,46 +445,53 @@ const ProfileWrapper = styled.div`
 
     .profile-details {
       text-align: left;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
 
       .detail-item {
-        margin-bottom: 1.75rem;
+        margin-bottom: 2rem;
 
         label {
           display: block;
-          font-size: 0.95rem;
-          color: #495057;
-          margin-bottom: 0.5rem;
-          font-weight: 500;
+          font-size: 1rem;
+          color: #37474f;
+          margin-bottom: 0.6rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
 
         p {
-          font-size: 1rem;
-          color: #212529;
+          font-size: 1.1rem;
+          color: #263238;
           margin: 0;
-          padding: 0.5rem;
-          background-color: #f8f9fa;
-          border-radius: 6px;
-          border: 1px solid #e9ecef;
+          padding: 0.8rem;
+          background: #f5f6fa;
+          border-radius: 8px;
+          border: 1px solid #e0e7ff;
+          line-height: 1.6;
         }
 
         .edit-input {
           width: 100%;
-          padding: 0.75rem;
-          font-size: 1rem;
-          border: 1px solid #ced4da;
-          border-radius: 6px;
+          padding: 0.9rem;
+          font-size: 1.1rem;
+          border: 2px solid #e0e0e0;
+          border-radius: 8px;
           transition: border-color 0.3s ease, box-shadow 0.3s ease;
 
           &:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            border-color: #4fc3f7;
+            box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.2);
             outline: none;
           }
         }
 
         textarea.edit-input {
           resize: vertical;
-          min-height: 100px;
+          min-height: 120px;
+          line-height: 1.5;
         }
       }
     }
@@ -482,139 +501,115 @@ const ProfileWrapper = styled.div`
     .save-button,
     .cancel-button {
       width: 100%;
-      padding: 0.85rem;
-      font-size: 1rem;
+      padding: 1rem;
+      font-size: 1.1rem;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      margin-bottom: 0.75rem;
-      font-weight: 500;
+      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
 
       &:hover {
-        transform: translateY(-2px);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       }
 
       &:active {
         transform: translateY(0);
       }
+
+      &:disabled {
+        background-color: #b0bec5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
     }
 
     .edit-button {
-      background-color: #007bff;
+      background: linear-gradient(90deg, #4fc3f7, #0288d1);
       color: #fff;
 
       &:hover {
-        background-color: #0056b3;
+        background: linear-gradient(90deg, #0288d1, #4fc3f7);
       }
     }
 
     .change-password-button {
-      background-color: #28a745;
+      background: linear-gradient(90deg, #66bb6a, #388e3c);
       color: #fff;
 
       &:hover {
-        background-color: #218838;
+        background: linear-gradient(90deg, #388e3c, #66bb6a);
       }
     }
 
     .save-button {
-      background-color: #17a2b8;
+      background: linear-gradient(90deg, #26a69a, #00796b);
       color: #fff;
 
       &:hover {
-        background-color: #138496;
+        background: linear-gradient(90deg, #00796b, #26a69a);
       }
     }
 
     .cancel-button {
-      background-color: #dc3545;
+      background: linear-gradient(90deg, #ef5350, #d32f2f);
       color: #fff;
 
       &:hover {
-        background-color: #c82333;
+        background: linear-gradient(90deg, #d32f2f, #ef5350);
       }
     }
 
     .change-password-form {
-      margin-top: 2.5rem;
+      margin-top: 3rem;
       text-align: left;
-      background-color: #f8f9fa;
-      padding: 1.5rem;
-      border-radius: 8px;
-      border: 1px solid #e9ecef;
+      background: #fafbff;
+      padding: 2rem;
+      border-radius: 12px;
+      border: 1px solid #e0e7ff;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      animation: slideIn 0.3s ease;
 
       h3 {
-        font-size: 1.5rem;
-        color: #343a40;
-        margin-bottom: 1.5rem;
-        font-weight: 600;
+        font-size: 1.8rem;
+        color: #263238;
+        margin-bottom: 1.8rem;
+        font-weight: 700;
         text-align: center;
+        letter-spacing: 0.5px;
       }
 
       .detail-item {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.8rem;
 
         label {
           display: block;
-          font-size: 0.95rem;
-          color: #495057;
-          margin-bottom: 0.5rem;
-          font-weight: 500;
+          font-size: 1rem;
+          color: #37474f;
+          margin-bottom: 0.6rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
 
         input {
           width: 100%;
-          padding: 0.75rem;
-          font-size: 1rem;
-          border: 1px solid #ced4da;
-          border-radius: 6px;
+          padding: 0.9rem;
+          font-size: 1.1rem;
+          border: 2px solid #e0e0e0;
+          border-radius: 8px;
           transition: border-color 0.3s ease, box-shadow 0.3s ease;
 
           &:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            border-color: #4fc3f7;
+            box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.2);
             outline: none;
           }
-        }
-      }
-
-      .save-button,
-      .cancel-button {
-        width: 100%;
-        padding: 0.85rem;
-        font-size: 1rem;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-        margin-bottom: 0.75rem;
-        font-weight: 500;
-
-        &:hover {
-          transform: translateY(-2px);
-        }
-
-        &:active {
-          transform: translateY(0);
-        }
-      }
-
-      .save-button {
-        background-color: #17a2b8;
-        color: #fff;
-
-        &:hover {
-          background-color: #138496;
-        }
-      }
-
-      .cancel-button {
-        background-color: #6c757d;
-        color: #fff;
-
-        &:hover {
-          background-color: #5a6268;
         }
       }
     }
@@ -627,14 +622,49 @@ const ProfileWrapper = styled.div`
 
   .upload-label {
     display: block;
-    margin-top: 0.5rem;
-    color: #007bff;
+    margin-top: 0.8rem;
+    color: #4fc3f7;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 600;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: #0288d1;
+    }
   }
 
   .file-input {
     display: none;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .profile-container {
+      padding: 2rem;
+    }
+
+    .profile-details {
+      grid-template-columns: 1fr;
+    }
+
+    .profile-image {
+      width: 120px;
+      height: 120px;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+    }
   }
 `;
 
