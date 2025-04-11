@@ -1,10 +1,17 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { adminadoptionsAPI, adminusersAPI, totalanimalAPI,  totalusersAPI } from "../services/adminServices";
+import {
+  adminadoptionsAPI,
+  adminusersAPI,
+  totalanimalAPI,
+  totallostpets,
+  totalusersAPI,
+} from "../services/adminServices";
 import { useQuery } from "@tanstack/react-query";
 import Logout from "./Logout";
+import ApprovedAdoptionsView from "./ApprovedAdoptionView";
 
-// Styled Components
+// Styled Components (unchanged)
 const Container = styled.div`
   min-height: 100vh;
   display: flex;
@@ -145,6 +152,49 @@ const StatCard = styled.div`
   }
 `;
 
+const PieChartContainer = styled.div`
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 600px;
+  margin: 1.5rem auto;
+`;
+
+const PieChart = styled.svg`
+  width: 300px;
+  height: 300px;
+`;
+
+const Legend = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
+
+const LegendItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  span {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    background-color: ${(props) => props.color};
+  }
+
+  p {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+`;
+
 const UsersContainer = styled.div`
   background-color: white;
   border-radius: 0.5rem;
@@ -158,7 +208,8 @@ const Table = styled.table`
   border-collapse: collapse;
   margin-top: 1rem;
 
-  th, td {
+  th,
+  td {
     padding: 0.75rem 1rem;
     text-align: left;
     border-bottom: 1px solid #e5e7eb;
@@ -288,13 +339,11 @@ const UsersView = () => {
 
   const { data, isLoading, isError, error } = useQuery({
     queryFn: adminusersAPI,
-    queryKey: ['users-view']
-});
-console.log(data);
+    queryKey: ["users-view"],
+  });
+  console.log(data);
 
-
-
-  const filteredUsers = data
+  const filteredUsers = data;
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredUsers?.slice(indexOfFirstUser, indexOfLastUser);
@@ -304,17 +353,11 @@ console.log(data);
     setCurrentPage(pageNumber);
   };
 
-  const handleEditUser = (userId) => {
-    
-  };
+  const handleEditUser = (userId) => {};
 
-  const handleDeleteUser = (userId) => {
-    
-  };
+  const handleDeleteUser = (userId) => {};
 
-  const handleChangeRole = (userId) => {
-    
-  };
+  const handleChangeRole = (userId) => {};
 
   return (
     <UsersContainer>
@@ -359,9 +402,7 @@ console.log(data);
             {Math.min(indexOfLastUser, filteredUsers?.length)} of{" "}
             {filteredUsers?.length} users
           </div>
-          <div>
-            
-          </div>
+          <div></div>
         </Pagination>
       )}
     </UsersContainer>
@@ -371,39 +412,75 @@ console.log(data);
 const AdminDashboard = () => {
   const [selectedMenu, setSelectedMenu] = useState("Dashboard");
   const [openDropdown, setOpenDropdown] = useState(null);
-  
-  const { data:totalusers} = useQuery({
+
+  const { data: totalusers } = useQuery({
     queryFn: totalusersAPI,
-    queryKey: ['view-totalusers']
+    queryKey: ["view-totalusers"],
   });
   console.log(totalusers);
 
-  const { data:totalanimal} = useQuery({
+  const { data: totalanimal } = useQuery({
     queryFn: totalanimalAPI,
-    queryKey: ['view-totalanimal']
+    queryKey: ["view-totalanimal"],
   });
-  
-  const { data:totaladoption} = useQuery({
-    queryFn: adminadoptionsAPI,
-    queryKey: ['view-totaladoption']
-  });
-  
 
-const total=totalusers?.length
-const pets=totalanimal?.animals?.length
-const adoption=totaladoption?.adoption?.length
-console.log(totalanimal);
+  const { data: totaladoption } = useQuery({
+    queryFn: adminadoptionsAPI,
+    queryKey: ["view-totaladoption"],
+  });
+
+  const { data: totallost } = useQuery({
+    queryFn: totallostpets,
+    queryKey: ["view-totallostpets"],
+  });
+  const total = totalusers?.length;
+  const pets = totalanimal?.animals?.length;
+  const lostpets = totallost?.lost?.length;
+  const adoption = totaladoption?.adoption?.length;
+
+  console.log(totaladoption);
+
   const dashboardStats = [
-    { title: "Shelter Pets",  icon: "🐾",count:pets },
-    { title: "Lost Pet Alerts", count: 45, icon: "🔔" },
+    { title: "Shelter Pets", icon: "🐾", count: pets },
+    { title: "Lost Pet Alerts", count: lostpets, icon: "🔔" },
     { title: "Adoption Requests", count: adoption, icon: "🏡" },
-    { title: "Total Users", icon: "👥" ,count:total},
-    { title: "Monthly Analytics", count: "View Report", icon: "📊" },
+    { title: "Total Users", icon: "👥", count: total },
   ];
+
+  // Pie chart data using dashboardStats, excluding "Monthly Analytics"
+  const pieChartData = dashboardStats
+    .filter((stat) => stat.title !== "Monthly Analytics")
+    .map((stat, index) => ({
+      title: stat.title,
+      count: stat.count || 0,
+      color: ["#3b82f6", "#ef4444", "#10b981", "#f59e0b"][index],
+    }));
+
+  const totalCount = pieChartData.reduce((sum, item) => sum + item.count, 0);
+  let startAngle = 0;
+
+  const pieChartSlices = pieChartData
+    .map((item) => {
+      if (item.count === 0) return null;
+      const percentage = (item.count / totalCount) * 100;
+      const angle = (percentage / 100) * 360;
+      const largeArcFlag = angle > 180 ? 1 : 0;
+
+      const startX = 150 + 100 * Math.cos((startAngle * Math.PI) / 180);
+      const startY = 150 + 100 * Math.sin((startAngle * Math.PI) / 180);
+      const endX = 150 + 100 * Math.cos(((startAngle + angle) * Math.PI) / 180);
+      const endY = 150 + 100 * Math.sin(((startAngle + angle) * Math.PI) / 180);
+
+      const path = `M 150,150 L ${startX},${startY} A 100,100 0 ${largeArcFlag},1 ${endX},${endY} Z`;
+      startAngle += angle;
+
+      return { path, color: item.color, title: item.title, count: item.count };
+    })
+    .filter((slice) => slice !== null);
 
   const menuItems = [
     { title: "Dashboard" },
-    { title: "Users", subItems: ["View Users",] },
+    { title: "Users", subItems: ["View Users"] },
     { title: "Lost Pets", subItems: ["Reported Cases", "Found Pets"] },
     { title: "Adoptions", subItems: ["Approved Requests"] },
     { title: "Reports", subItems: ["View Reports"] },
@@ -452,27 +529,55 @@ console.log(totalanimal);
           <h1>{selectedMenu}</h1>
           <div>
             <button>🔍 Search Reports</button>
-            <Logout/> 
+            <Logout />
           </div>
         </Header>
 
         {selectedMenu === "Dashboard" && (
-          <StatsGrid>
-            {dashboardStats.map((stat, index) => (
-              <StatCard key={index}>
-                <span>{stat.icon}</span>
-                <div>
-                  <h2>{stat.title}</h2>
-                  <p>{stat.count}</p>
-                </div>
-              </StatCard>
-            ))}
-          </StatsGrid>
+          <>
+            <StatsGrid>
+              {dashboardStats.map((stat, index) => (
+                <StatCard key={index}>
+                  <span>{stat.icon}</span>
+                  <div>
+                    <h2>{stat.title}</h2>
+                    <p>{stat.count}</p>
+                  </div>
+                </StatCard>
+              ))}
+            </StatsGrid>
+            <PieChartContainer>
+              <h2>Statistics Overview</h2>
+              <PieChart viewBox="0 0 300 300">
+                {pieChartSlices.map((slice, index) => (
+                  <path
+                    key={index}
+                    d={slice.path}
+                    fill={slice.color}
+                    stroke="#fff"
+                    strokeWidth="2"
+                  />
+                ))}
+              </PieChart>
+              <Legend>
+                {pieChartSlices.map((slice, index) => (
+                  <LegendItem key={index} color={slice.color}>
+                    <span></span>
+                    <p>
+                      {slice.title}: {slice.count}
+                    </p>
+                  </LegendItem>
+                ))}
+              </Legend>
+            </PieChartContainer>
+          </>
         )}
 
         {(selectedMenu === "Users" || selectedMenu === "View Users") && (
           <UsersView />
         )}
+
+        {selectedMenu === "Approved Requests" && <ApprovedAdoptionsView/>}
       </MainContent>
     </Container>
   );

@@ -4,6 +4,7 @@ const User = require("../models/userModel");
 const Adoption = require("../models/adoptionModel");
 const Animal = require("../models/animalModel");
 const Notification = require("../models/notificationModel");
+const LostFound = require("../models/lostFoundModel");
 
 const adminController = {
     // Approve a shelter
@@ -53,6 +54,7 @@ const adminController = {
         const users = await User.find({ role: { $ne: "admin" } });
                 res.json(users);
     }),
+    
     // Delete a user
     deleteUser: asyncHandler(async (req, res) => {
         const { userId } = req.body;
@@ -61,9 +63,15 @@ const adminController = {
     }),
 
     // Get all pending adoptions
-    getPendingAdoptions: asyncHandler(async (req, res) => {
-        const adoptions = await Adoption.find();
-        res.json(adoptions);
+    getlostpets: asyncHandler(async (req, res) => {
+        const lost = await LostFound.find();
+        res.json({ lost }); // Wrap in { lost }
+    }),
+    
+    // getAdoptions
+    getAdoptions: asyncHandler(async (req, res) => {
+        const adoptions = await Adoption.find().populate("animalId").populate("applicantId");
+        res.json({ adoption: adoptions }); // Wrap in { adoption }
     }),
 
     getAll: asyncHandler(async (req, res) => {

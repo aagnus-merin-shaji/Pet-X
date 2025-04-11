@@ -37,15 +37,6 @@ export const totalusersAPI= async()=>{
 }
 
 
-export const adminadoptionsAPI= async()=>{
-    const response = await axios.get(`${BASE_URL}/admin/adoptions`,data, {
-        headers:{
-            Authorization: `Bearer ${token}`
-        }  // Make sure credentials (cookies) are sent
-    });
-    return response.data
-}
-
 export const admindeleteAPI= async()=>{
     const response = await axios.delete(`${BASE_URL}/admin/delete`,data, {
         withCredentials: true,  // Make sure credentials (cookies) are sent
@@ -71,6 +62,24 @@ export const totalanimalAPI= async()=>{
 
 export const totalrequestAPI= async()=>{
     const response = await axios.get(`${BASE_URL}/admin/viewall`, {
+        headers:{
+            Authorization: `Bearer ${token}`
+        }  // Make sure credentials (cookies) are sent
+    });
+    return response.data
+}
+
+export const totallostpets= async()=>{
+    const response = await axios.get(`${BASE_URL}/admin/viewlostpets`, {
+        headers:{
+            Authorization: `Bearer ${token}`
+        }  // Make sure credentials (cookies) are sent
+    });
+    return response.data
+}
+
+export const adminadoptionsAPI= async()=>{
+    const response = await axios.get(`${BASE_URL}/admin/adoptions`, {
         headers:{
             Authorization: `Bearer ${token}`
         }  // Make sure credentials (cookies) are sent
