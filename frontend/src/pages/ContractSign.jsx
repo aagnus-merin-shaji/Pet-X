@@ -24,6 +24,7 @@ const ContractSign = () => {
     enabled: !!petId,
   });
   
+
   
 
   const { mutateAsync, isPending, isError } = useMutation({
@@ -47,6 +48,7 @@ const ContractSign = () => {
     await mutateAsync({id:animal._id});
     console.log(`Contract signed by ${signer} with signature: ${signer}`);
     alert(`Contract signed successfully by ${signer}!`);
+    navigate('/adopter-adoptions');
   };  
 
   return (

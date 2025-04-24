@@ -180,6 +180,7 @@ const NavigatorWrapper = styled.header`
     display: flex;
     align-items: center;
     gap: 1.6rem;
+    padding: 0 1.6rem;
 
     .menu-btn {
       display: block;

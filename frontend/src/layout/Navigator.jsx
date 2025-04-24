@@ -65,7 +65,6 @@ const navLinks = [
   {name : "petsreports",path:"adopter-lostfoundview"},
   { name: "animals", path: "/portfolio" },
   { name: "adoptions", path: "/adopter-adoptions" },
-  { name: "contact", path: "/contact" },
 ];
 
 const Navigator = () => {

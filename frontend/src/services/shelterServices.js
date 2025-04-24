@@ -53,3 +53,13 @@ export const shelterdeleteAPI= async(data)=>{
 }
 
 
+
+export const shelteranimalallAPI= async()=>{
+    const response = await axios.get(`${BASE_URL}/shelter/everyanimal`, {
+        headers:{
+            Authorization: `Bearer ${token}`
+        } // Make sure credentials (cookies) are sent
+    });
+    return response.data
+}
+

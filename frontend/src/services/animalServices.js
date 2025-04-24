@@ -37,8 +37,7 @@ export const animalbyidAPI= async(data)=>{
             Authorization: `Bearer ${token}`
         } // Make sure credentials (cookies) are sent
     });
-    console.log(response);
-    
+ 
     return response.data
 }
 

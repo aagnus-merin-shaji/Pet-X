@@ -13,6 +13,8 @@ const AdopterAdoptions = () => {
         queryFn: adoptionviewAPI,
         queryKey: ["request"],
     });
+   
+    
     const orderedPets = data?.applications || [];
 
     const handlePayment = (adoptionId) => {
@@ -56,7 +58,7 @@ const AdopterAdoptions = () => {
                                     <button
                                         className="contract-button"
                                         onClick={() => handleContract(pet.animalId)}
-                                        disabled={pet.paymentStatus !== "completed"} // Enable if completed
+                                        disabled={pet.animalId.status === "adopted"} // Enable if completed
                                     >
                                         Sign Contract
                                     </button>

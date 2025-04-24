@@ -17,7 +17,7 @@ const Animals = () => {
     };
 
     const handleMedicalDetails = (pet) => {
-        navigate('/adopter/medical-details', { state: { pet: pet._id } });
+        navigate('/shelter/medical-details', { state: { pet: pet._id } });
     };
 
     if (isLoading) return <div>Loading...</div>;

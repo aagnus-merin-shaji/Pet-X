@@ -103,7 +103,7 @@ const Adoptions = () => {
               </RejectButton>
               <ContractButton
                 onClick={() => handleContract(request.animalId._id)}
-               
+                disabled={request.animalId.status === "adopted"}
               >
                 Sign Contract
               </ContractButton>

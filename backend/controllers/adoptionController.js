@@ -101,7 +101,7 @@ const adoptionController = {
             // Find adoption applications for the given shelter
             const applications = await Adoption.find({ shelterId })
                 .populate('applicantId', 'username email') // Populate applicant information
-                .populate('animalId', 'name breed type') // Populate animal details
+                .populate('animalId') // Populate animal details
                 .populate('shelterId', 'name location'); // Populate shelter information
 
 
@@ -213,7 +213,7 @@ const adoptionController = {
             // Find adoption applications for the given shelter
             const applications = await Adoption.find({ applicantId:req.user.id })
                 .populate('applicantId', 'username email') // Populate applicant information
-                .populate('animalId', 'name breed type') // Populate animal details
+                .populate('animalId') // Populate animal details
                 .populate('shelterId', 'name location'); // Populate shelter information
 
 
@@ -223,6 +223,11 @@ const adoptionController = {
             res.status(500).json({ message: 'Server error', error });
         }
     }),
+
+    getAllAdoptions: asyncHandler(async (req, res) => {
+            const adoptions = await Adoption.find().populate("animalId").populate("applicantId");
+            res.json({ adoption: adoptions }); // Wrap in { adoption }
+        }),
 };
 
 module.exports = adoptionController;

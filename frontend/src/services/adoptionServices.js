@@ -63,3 +63,12 @@ export const adoptionviewAPI= async()=>{
     });
     return response.data
 }
+
+export const adoptionanimalAPI= async()=>{
+    const response = await axios.get(`${BASE_URL}/adoption/adoptionanimal`, {
+        headers:{
+            Authorization: `Bearer ${token}`
+        }  
+    });
+    return response.data
+}

@@ -6,6 +6,10 @@ const shelterSchema = new mongoose.Schema({
         ref: 'User', 
         required: true 
     },
+    logo:{
+        type:String,
+        default:"",
+    },
     organizationName: { 
         type: String, 
         required: true 

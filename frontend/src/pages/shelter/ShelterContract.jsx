@@ -1,12 +1,13 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import React, { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { animalbyidAPI } from "../../services/animalServices";
 import { contracteditAPI } from "../../services/adoptionContractServices";
 
 const ShelterContract = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { petId } = location.state || {};
 
   useEffect(() => {
@@ -38,6 +39,7 @@ const ShelterContract = () => {
     console.log("Contract signing requested (no actual changes made)");
     alert("Contract signed");
     await mutateAsync({ id: petId });
+    navigate('/shelter/adoptions');
   };
 
   return (

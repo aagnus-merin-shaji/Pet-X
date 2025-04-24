@@ -5,7 +5,7 @@ const User = require('../models/userModel');
 
 const shelterController = {
     upsertShelterProfile : asyncHandler(async (req, res) => {
-        const { organizationName, missionStatement, phone, address } = req.body;
+        const { organizationName, missionStatement, phone, address, logo } = req.body;
         const userId = req.user.id;
     
         // Fetch user details
@@ -24,7 +24,14 @@ const shelterController = {
                 res.status(404);
                 throw new Error("Shelter profile not found");
             }
-            Object.assign(shelterProfile, { organizationName, missionStatement, phone, address, facilityImages: req.files });
+            Object.assign(shelterProfile, { 
+                organizationName, 
+                missionStatement, 
+                phone, 
+                address, 
+                facilityImages: req.files,
+                logo: logo || shelterProfile.logo // Preserve existing logo if none provided
+            });
         } else {
             // Check if a shelter with the same name and address exists
             const exists = await Shelter.findOne({ organizationName, address });
@@ -85,11 +92,13 @@ const shelterController = {
     }),
 
     getAnimalsByShelter: asyncHandler(async (req, res) => {
-        const { shelterId } = req.body;    
+        const { shelterId } = req.body;
+    
         if (!shelterId) {
             res.status(400);
             throw new Error('Shelter ID is required');
-        }    
+        }
+    
         const animals = await Animal.find({ shelterId });
     
         if (!animals.length) {
@@ -99,7 +108,10 @@ const shelterController = {
     
         res.send({ animals });
     }),
-    
+    getAllAnimals: asyncHandler(async (req, res) => {
+        const animals = await Animal.find();
+        res.json({ animals });
+    }),
 };
 
 module.exports = shelterController;

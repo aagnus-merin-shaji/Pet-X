@@ -58,7 +58,8 @@ function App() {
     "/shelter/adoptions",
     "/shelter/reports",
     "/shelter/profile",
-    "/shelter/contract", // Added here to ensure ShelterNavbar is recognized
+    "/shelter/contract",
+    "/shelter/medical-details"
   ];
 
   // Define clinic-based routes
@@ -149,6 +150,7 @@ function App() {
           <Route path="/shelter/reports" element={<Reports />} />
           <Route path="/shelter/profile" element={<ShelterProfilePage />} />
           <Route path="/shelter/contract" element={<ShelterContract />} />
+          <Route path="/shelter/medical-details" element={<AdopterMedicalDetails/>}/>
           <Route path="*" element={<>404 Not Found</>} />
         </Routes>
       ) : userRole === "clinic" ? (

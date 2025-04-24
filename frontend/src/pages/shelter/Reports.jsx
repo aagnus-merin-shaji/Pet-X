@@ -1,16 +1,40 @@
 import React from "react";
 import styled from "styled-components";
+import { animalsviewallAPI } from "../../services/animalServices";
+import { useQuery } from "@tanstack/react-query";
+import { shelteranimalallAPI } from "../../services/shelterServices";
+import { adoptionanimalAPI } from "../../services/adoptionServices";
 
 const Reports = () => {
   // Sample data for the shelter report
+  const { data:animals } = useQuery({
+    queryFn: animalsviewallAPI,
+    queryKey: ['animal-avaiable']
+});
+
+ const { data:pets } = useQuery({
+  queryFn: shelteranimalallAPI,
+  queryKey: ['total-animal']
+ });
+
+ const { data:adoptions } = useQuery({
+  queryFn: adoptionanimalAPI,
+  queryKey: ['total-adoption']
+ });
+ console.log(adoptions);
+ 
+
+ const pendingAdoptionsCount = adoptions?.adoption?.filter(adoption => 
+  adoption.adoptionStatus === 'pending' // adjust this condition based on your actual status field
+).length || 0;
+
   const reportData = {
-    totalAnimals: 50,
-    adoptedAnimals: 30,
-    pendingAdoptions: 10,
-    availableAnimals: 10,
+    totalAnimals: pets?.animals?.length,
+    adoptedAnimals:adoptions?.adoption?.length,
+    pendingAdoptions:pendingAdoptionsCount ,
+    availableAnimals: animals?.animals?.length,
     recentAdoptions: [
-      { id: 1, petName: "Bella", applicantName: "John Doe", date: "2023-10-01" },
-      { id: 2, petName: "Max", applicantName: "Jane Smith", date: "2023-10-05" },
+     
     ],
   };
 
@@ -38,29 +62,6 @@ const Reports = () => {
           <p>{reportData.availableAnimals}</p>
         </MetricCard>
       </MetricsGrid>
-
-      {/* Recent Adoptions Table */}
-      <RecentAdoptions>
-        <h2>Recent Adoptions</h2>
-        <Table>
-          <thead>
-            <tr>
-              <th>Pet Name</th>
-              <th>Applicant Name</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reportData.recentAdoptions.map((adoption) => (
-              <tr key={adoption.id}>
-                <td>{adoption.petName}</td>
-                <td>{adoption.applicantName}</td>
-                <td>{adoption.date}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </RecentAdoptions>
     </ReportsContainer>
   );
 };

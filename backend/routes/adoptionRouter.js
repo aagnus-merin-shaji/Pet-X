@@ -9,6 +9,7 @@ adoptionRoutes.get("/viewall", userAuthentication,adoptionController.getApplicat
 adoptionRoutes.get("/adopter", userAuthentication,adoptionController.getApplicationsByAdopter);
 adoptionRoutes.get("/search", userAuthentication,adoptionController.getApplicationById);
 adoptionRoutes.get("/matches", userAuthentication,adoptionController.findBestMatches);
+adoptionRoutes.get("/adoptionanimal", userAuthentication,adoptionController.getAllAdoptions);
 adoptionRoutes.delete("/delete", userAuthentication,adoptionController.deleteApplication);
 
 module.exports = adoptionRoutes;
