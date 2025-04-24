@@ -135,7 +135,7 @@ const LostFound = () => {
       const formData = new FormData();
       
       // Append all fields except photos
-      formData.append('animal', values.animal);
+      formData.append('animalName', values.animalName);
       formData.append('animalType', values.animalType);
       formData.append('lastSeenLocation', values.lastSeenLocation);
       formData.append('dateLostOrFound', values.dateLostOrFound);
@@ -183,9 +183,9 @@ const LostFound = () => {
             <Label>Animal Name</Label>
             <Input
               type="text"
-              name="animalname"
+              name="animalName"
               placeholder="Enter animal's name"
-              value={formik.values.animal}
+              value={formik.values.animalName}
               onChange={formik.handleChange}
             />
           </FormGroup>

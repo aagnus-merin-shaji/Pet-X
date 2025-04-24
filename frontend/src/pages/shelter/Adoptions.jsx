@@ -22,6 +22,8 @@ const Adoptions = () => {
     queryKey: ["request-view"],
   });
 
+  
+  
   const [adoptionRequests, setAdoptionRequests] = useState([]);
 
   useEffect(() => {
@@ -67,6 +69,8 @@ const Adoptions = () => {
       <AdoptionList>
         {adoptionRequests?.map((request) => (
           <AdoptionCard key={request._id}>
+            {console.log(request.animalId)}
+            
             <h2>{request.animalId?.name}</h2>
             <p>
               <strong>Breed:</strong> {request.animalId?.breed}
@@ -99,7 +103,7 @@ const Adoptions = () => {
               </RejectButton>
               <ContractButton
                 onClick={() => handleContract(request.animalId._id)}
-                disabled={request.adoptionStatus !== "Approved"}
+               
               >
                 Sign Contract
               </ContractButton>

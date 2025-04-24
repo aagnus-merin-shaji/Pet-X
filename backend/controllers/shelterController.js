@@ -85,13 +85,11 @@ const shelterController = {
     }),
 
     getAnimalsByShelter: asyncHandler(async (req, res) => {
-        const { shelterId } = req.body;
-    
+        const { shelterId } = req.body;    
         if (!shelterId) {
             res.status(400);
             throw new Error('Shelter ID is required');
-        }
-    
+        }    
         const animals = await Animal.find({ shelterId });
     
         if (!animals.length) {

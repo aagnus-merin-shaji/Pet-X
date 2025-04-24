@@ -1,32 +1,47 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
-import { lostfoundviewallAPI, lostfoundviewuserAPI } from "../../services/lostfoundServices";
+import { lostfoundviewallAPI, lostfoundviewuserAPI, lostfoundeditAPI } from "../../services/lostfoundServices";
 import { FaPaw } from "react-icons/fa";
 
 const LostFoundview = () => {
     const [expandedId, setExpandedId] = useState(null);
+    const queryClient = useQueryClient();
 
-    const { data, isLoading, isError, error } = useQuery({
+    const { data: userReports } = useQuery({
         queryKey: ["lost-viewuser"],
         queryFn: lostfoundviewuserAPI,
     });
 
-    const { data:lost} = useQuery({
+    const { data: lost } = useQuery({
         queryKey: ["lost-view"],
         queryFn: lostfoundviewallAPI,
     });
-console.log(lost);
+
+    const markAsFoundMutation = useMutation({
+        mutationFn: lostfoundeditAPI,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["lost-view"]);
+            queryClient.invalidateQueries(["lost-viewuser"]);
+        },
+    });
 
     const toggleReadMore = (id) => {
         setExpandedId(expandedId === id ? null : id);
     };
 
-    if (isLoading) return <div style={styles.loading}>Loading reports...</div>;
-    if (isError) return <div style={styles.error}>Error: {error.message}</div>;
+    const handleMarkAsFound = async (id) => {
+        try {
+            await markAsFoundMutation.mutateAsync(id);
+        } catch (error) {
+            console.error("Error marking as found:", error);
+        }
+    };
 
-  
-   console.log("ert",lost);
-   
+    const isUserReport = (reportId) => {
+        return userReports?.some(report => report._id === reportId);
+    };
+
+    if (!lost) return <div style={styles.loading}>Loading reports...</div>;
 
     return (
         <div style={styles.container}>
@@ -39,7 +54,7 @@ console.log(lost);
                     lost.map((report) => (
                         <div key={report._id} style={styles.card}>
                             <div style={styles.cardContent}>
-                                <h2 style={styles.reportName}>{report.animal}</h2>
+                                <h2 style={styles.reportName}>{report.animalName || "Unnamed Pet"}</h2>
                                 <p style={styles.reportInfo}>Type: {report.animalType}</p>
                                 <p style={styles.reportInfo}>
                                     Status:{" "}
@@ -47,9 +62,7 @@ console.log(lost);
                                         style={
                                             report.status === "found"
                                                 ? styles.foundStatus
-                                                : report.status === "lost"
-                                                ? styles.lostStatus
-                                                : styles.reunitedStatus
+                                                : styles.lostStatus
                                         }
                                     >
                                         {report.status}
@@ -62,21 +75,35 @@ console.log(lost);
                                     Date: {new Date(report.dateLostOrFound).toLocaleDateString()}
                                 </p>
                             </div>
-                            <img
-                                src={report?.photos}
-                                alt={report.animal}
-                                style={styles.reportPhoto}
-                            />
+                            {report.photos && (
+                                <img
+                                    src={report.photos}
+                                    alt={report.animalName || "Lost pet"}
+                                    style={styles.reportPhoto}
+                                />
+                            )}
                             <div style={styles.cardContent}>
-                                {expandedId === lost._id && (
+                                {expandedId === report._id && (
                                     <p style={styles.moreInfo}>
                                         <strong>Description:</strong>{" "}
                                         {report.description || "No additional details provided."}
                                     </p>
                                 )}
-                                <button style={styles.contactButton}>
+                                <button 
+                                    style={styles.contactButton}
+                                    onClick={() => window.location.href = `tel:${report.contact}`}
+                                >
                                     Contact: {report.contact}
                                 </button>
+                                {isUserReport(report._id) && report.status === 'lost' && (
+                                    <button 
+                                        style={styles.foundButton}
+                                        onClick={() => handleMarkAsFound(report._id)}
+                                        disabled={markAsFoundMutation.isPending}
+                                    >
+                                        {markAsFoundMutation.isPending ? 'Updating...' : 'Mark as Found'}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))
@@ -163,7 +190,18 @@ const styles = {
     },
     contactButton: {
         width: "100%",
-        backgroundColor: "#48bb78",
+        backgroundColor: "#4299e1",
+        color: "#ffffff",
+        padding: "8px 16px",
+        borderRadius: "8px",
+        border: "none",
+        cursor: "pointer",
+        marginTop: "8px",
+        transition: "background-color 0.3s ease",
+    },
+    foundButton: {
+        width: "100%",
+        backgroundColor: "#38a169",
         color: "#ffffff",
         padding: "8px 16px",
         borderRadius: "8px",

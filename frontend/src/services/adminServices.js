@@ -78,6 +78,15 @@ export const totallostpets= async()=>{
     return response.data
 }
 
+export const totalfoundpets= async()=>{
+    const response = await axios.get(`${BASE_URL}/admin/viewfoundpets`, {
+        headers:{
+            Authorization: `Bearer ${token}`
+        }  // Make sure credentials (cookies) are sent
+    });
+    return response.data
+}
+
 export const adminadoptionsAPI= async()=>{
     const response = await axios.get(`${BASE_URL}/admin/adoptions`, {
         headers:{

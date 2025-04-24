@@ -23,7 +23,8 @@ const ContractSign = () => {
     queryKey: ["contract-view", petId],
     enabled: !!petId,
   });
-  console.log(animal);
+  
+  
 
   const { mutateAsync, isPending, isError } = useMutation({
     mutationFn: contractaddAPI,
@@ -79,7 +80,12 @@ const ContractSign = () => {
             required
           />
         </label>
-        <button type="submit">Sign Contract</button>
+        <button
+         type="submit"
+         
+         >
+          Sign Contract
+          </button>
       </form>
     </ContractSignWrapper>
   );

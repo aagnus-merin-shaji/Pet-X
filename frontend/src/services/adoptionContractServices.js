@@ -40,7 +40,10 @@ export const contractsearchAPI= async()=>{
 
 export const contractdeleteAPI= async()=>{
     const response = await axios.delete(`${BASE_URL}/contract/delete`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+        headers:{
+            Authorization: `Bearer ${token}`,
+        }   // Make sure credentials (cookies) are sent
     });
     return response.data
 }
+

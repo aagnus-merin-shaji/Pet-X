@@ -67,6 +67,11 @@ const adminController = {
         const lost = await LostFound.find();
         res.json({ lost }); // Wrap in { lost }
     }),
+
+    getfoundpets: asyncHandler(async (req, res) => {
+        const lost = await LostFound.find({status:"found"});
+        res.json({ lost }); // Wrap in { lost }
+    }),
     
     // getAdoptions
     getAdoptions: asyncHandler(async (req, res) => {

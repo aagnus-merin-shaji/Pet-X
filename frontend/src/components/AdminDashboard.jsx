@@ -4,7 +4,11 @@ import {
   adminadoptionsAPI,
   adminusersAPI,
   totalanimalAPI,
+ 
+  totalfoundpets,
+ 
   totallostpets,
+ 
   totalusersAPI,
 } from "../services/adminServices";
 import { useQuery } from "@tanstack/react-query";
@@ -334,9 +338,6 @@ const Pagination = styled.div`
 
 const UsersView = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 5;
-
   const { data, isLoading, isError, error } = useQuery({
     queryFn: adminusersAPI,
     queryKey: ["users-view"],
@@ -344,20 +345,6 @@ const UsersView = () => {
   console.log(data);
 
   const filteredUsers = data;
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = filteredUsers?.slice(indexOfFirstUser, indexOfLastUser);
-  const totalPages = Math.ceil(filteredUsers?.length / usersPerPage);
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
-  const handleEditUser = (userId) => {};
-
-  const handleDeleteUser = (userId) => {};
-
-  const handleChangeRole = (userId) => {};
 
   return (
     <UsersContainer>
@@ -370,8 +357,8 @@ const UsersView = () => {
           </tr>
         </thead>
         <tbody>
-          {currentUsers?.length > 0 ? (
-            currentUsers?.map((user) => (
+          {filteredUsers?.length > 0 ? (
+            filteredUsers?.map((user) => (
               <tr key={user.id}>
                 <td>{user.username}</td>
                 <td>{user.email}</td>
@@ -394,18 +381,230 @@ const UsersView = () => {
           )}
         </tbody>
       </Table>
-
-      {filteredUsers?.length > 0 && (
-        <Pagination>
-          <div>
-            Showing {indexOfFirstUser + 1} to{" "}
-            {Math.min(indexOfLastUser, filteredUsers?.length)} of{" "}
-            {filteredUsers?.length} users
-          </div>
-          <div></div>
-        </Pagination>
-      )}
     </UsersContainer>
+  );
+};
+
+const ReportedCasesView = () => {
+  const { data: lostPets } = useQuery({
+    queryFn: totallostpets,
+    queryKey: ["view-totallostpets"],
+  });
+
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      if (!dateString || isNaN(date.getTime())) {
+        const today = new Date();
+        return today.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      }
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (error) {
+      const today = new Date();
+      return today.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+  };
+
+  return (
+    <UsersContainer>
+      <Table>
+        <thead>
+          <tr>
+            <th>Animal Type</th>
+            <th>Last Seen Location</th>
+            <th>Date Lost</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {lostPets?.lost?.length > 0 ? (
+            lostPets.lost.map((pet) => (
+              <tr key={pet._id}>
+                <td>{pet.animalType}</td>
+                <td>{pet.lastSeenLocation}</td>
+                <td>{formatDate(pet.dateLost)}</td>
+                <td>
+                  <StatusBadge className={pet.status?.toLowerCase()}>
+                    {pet.status || "Active"}
+                  </StatusBadge>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="4" style={{ textAlign: "center", padding: "2rem" }}>
+                No reported cases found
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </Table>
+    </UsersContainer>
+  );
+};
+
+const FoundPetsView = () => {
+  const { data: foundPets } = useQuery({
+    queryFn: totalfoundpets,
+    queryKey: ["view-foundpets"],
+  });
+console.log(foundPets);
+
+  return (
+    <UsersContainer>
+      <Table>
+        <thead>
+          <tr>
+            <th>Animal Name</th>
+            <th>Animal Type</th>
+            <th>Location Found</th>
+            <th>Date Found</th>
+            <th>Contact Information</th>
+            <th>Status</th>
+            <th>Photos</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {foundPets?.lost?.length > 0 ? (
+            foundPets.lost?.map((pet) => (
+              <tr key={pet._id}>
+                <td>{pet.name || "Unknown"}</td>
+                <td>{pet.animalType}</td>
+                <td>{pet.locationFound}</td>
+                <td>{new Date(pet.dateFound).toLocaleDateString()}</td>
+                <td>{pet.contactInfo}</td>
+                <td>
+                  <StatusBadge className={pet.status?.toLowerCase()}>
+                    {pet.status || "Found"}
+                  </StatusBadge>
+                </td>
+                <td>
+                  {pet.photos && pet.photos.length > 0 ? (
+                    <img 
+                      src={pet.photos[0]} 
+                      alt={pet.name || "Found pet"} 
+                      style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                    />
+                  ) : "No photo"}
+                </td>
+                <td>
+                  <ActionButton className="edit">View Details</ActionButton>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="8" style={{ textAlign: "center", padding: "2rem" }}>
+                No found pets reported
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </Table>
+    </UsersContainer>
+  );
+};
+
+const ViewReportsSection = () => {
+  const { data: totalusers } = useQuery({
+    queryFn: totalusersAPI,
+    queryKey: ["view-totalusers"],
+  });
+
+  const { data: totalanimal } = useQuery({
+    queryFn: totalanimalAPI,
+    queryKey: ["view-totalanimal"],
+  });
+
+  const { data: totaladoption } = useQuery({
+    queryFn: adminadoptionsAPI,
+    queryKey: ["view-totaladoption"],
+  });
+
+  const { data: totallost } = useQuery({
+    queryFn: totallostpets,
+    queryKey: ["view-totallostpets"],
+  });
+
+  const total = totalusers?.length;
+  const pets = totalanimal?.animals?.length;
+  const lostpets = totallost?.lost?.length;
+  const adoption = totaladoption?.adoption?.length;
+
+  const reportStats = [
+    { title: "Shelter Pets", count: pets || 0, color: "#4285F4" }, // Blue
+    { title: "Lost Pet Alerts", count: lostpets || 0, color: "#EA4335" }, // Red
+    { title: "Adoption Requests", count: adoption || 0, color: "#34A853" }, // Green
+    { title: "Total Users", count: total || 0, color: "#FBBC05" }, // Orange
+  ];
+
+  const totalCount = reportStats.reduce((sum, item) => sum + item.count, 0);
+  let startAngle = 0;
+
+  const pieChartSlices = reportStats
+    .map((item) => {
+      if (item.count === 0) return null;
+      const percentage = (item.count / totalCount) * 100;
+      const angle = (percentage / 100) * 360;
+      const largeArcFlag = angle > 180 ? 1 : 0;
+
+      const startX = 150 + 100 * Math.cos((startAngle * Math.PI) / 180);
+      const startY = 150 + 100 * Math.sin((startAngle * Math.PI) / 180);
+      const endX = 150 + 100 * Math.cos(((startAngle + angle) * Math.PI) / 180);
+      const endY = 150 + 100 * Math.sin(((startAngle + angle) * Math.PI) / 180);
+
+      const path = `M 150,150 L ${startX},${startY} A 100,100 0 ${largeArcFlag},1 ${endX},${endY} Z`;
+      startAngle += angle;
+
+      return { path, color: item.color, title: item.title, count: item.count };
+    })
+    .filter((slice) => slice !== null);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '2rem' }}>
+      <PieChartContainer>
+        <h2 style={{ 
+          fontSize: '24px', 
+          fontWeight: 'bold', 
+          marginBottom: '2rem',
+          textAlign: 'center' 
+        }}>Statistics Overview</h2>
+        <PieChart viewBox="0 0 300 300">
+          {pieChartSlices.map((slice, index) => (
+            <path
+              key={index}
+              d={slice.path}
+              fill={slice.color}
+              stroke="#fff"
+              strokeWidth="2"
+            />
+          ))}
+        </PieChart>
+        <Legend>
+          {pieChartSlices.map((slice, index) => (
+            <LegendItem key={index} color={slice.color}>
+              <span></span>
+              <p>
+                {slice.title}: {slice.count}
+              </p>
+            </LegendItem>
+          ))}
+        </Legend>
+      </PieChartContainer>
+    </div>
   );
 };
 
@@ -577,7 +776,10 @@ const AdminDashboard = () => {
           <UsersView />
         )}
 
-        {selectedMenu === "Approved Requests" && <ApprovedAdoptionsView/>}
+        {selectedMenu === "Approved Requests" && <ApprovedAdoptionsView />}
+        {selectedMenu === "Reported Cases" && <ReportedCasesView />}
+        {selectedMenu === "Found Pets" && <FoundPetsView />}
+        {selectedMenu === "View Reports" && <ViewReportsSection />}
       </MainContent>
     </Container>
   );

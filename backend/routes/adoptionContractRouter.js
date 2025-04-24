@@ -10,4 +10,5 @@ contractRoutes.get("/shelter", userAuthentication,adoptionContractController.get
 contractRoutes.get("/search", userAuthentication,adoptionContractController.getContractById);
 contractRoutes.delete("/delete", userAuthentication,adoptionContractController.deleteContract);
 
+
 module.exports = contractRoutes;

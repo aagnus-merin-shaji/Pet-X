@@ -63,6 +63,7 @@ const adoptionContractController = {
             adoptionId:adoption._id
         });
         adoptionContract.signedByShelter=true
+        await animal.save();
         await adoptionContract.save();
         res.status(201).json(adoptionContract);
     }),
@@ -77,7 +78,8 @@ const adoptionContractController = {
         }
         await adoptionContract.remove();
         res.status(200).json({ message: 'Adoption contract removed' });
-    })
+    }),
+    
 };
 
 module.exports = adoptionContractController;

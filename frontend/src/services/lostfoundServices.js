@@ -16,7 +16,9 @@ export const lostaddAPI= async(data)=>{
 
 export const lostfoundeditAPI= async()=>{
     const response = await axios.put(`${BASE_URL}/lostfound/edit`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+        headers:{
+            Authorization: `Bearer ${token}`
+        }    // Make sure credentials (cookies) are sent
     });
     return response.data
 }
@@ -41,7 +43,9 @@ export const lostfoundviewallAPI= async()=>{
 
 export const lostfoundsearchAPI= async()=>{
     const response = await axios.get(`${BASE_URL}/lostfound/search`,data, {
-        withCredentials: true,  // Make sure credentials (cookies) are sent
+        headers:{
+            Authorization: `Bearer ${token}`
+        }   // Make sure credentials (cookies) are sent
     });
     return response.data
 }
