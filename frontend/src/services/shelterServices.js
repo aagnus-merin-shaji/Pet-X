@@ -17,8 +17,9 @@ export const shelteraddAPI= async()=>{
 export const sheltereditAPI= async(data)=>{
     const response = await axios.put(`${BASE_URL}/shelter/save`,data, {
         headers:{
-            Authorization: `Bearer ${token}`,            
-        }  // Make sure credentials (cookies) are sent
+            Authorization: `Bearer ${token}`, 
+            'Content-Type': 'application/json'           
+        }  
     });
     return response.data
 }

@@ -7,6 +7,7 @@ import FloatingCart from "../components/FloatingCart";
 import { useGlobalContext } from "../context/context";
 import Logout from "./Logout";
 import { markasreadAPI, notificationviewallAPI } from "../services/notificationServices";
+import { shelteraddAPI } from "../services/shelterServices";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // Bell Icon Component
@@ -60,6 +61,12 @@ const ShelterNavbar = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   
+  // Add profile data fetch
+  const { data: profileData } = useQuery({
+    queryFn: shelteraddAPI,
+    queryKey: ['profile'],
+  });
+
   const { data: notifications, isLoading, error } = useQuery({
     queryFn: notificationviewallAPI,
     queryKey: ["view-all"],
@@ -136,7 +143,7 @@ const ShelterNavbar = () => {
 
           {/* Avatar Button */}
           <button className="avatar-btn" onClick={() => navigate("/shelter/profile")}>
-            <img src={avatar} alt="avatar" />
+            <img src={profileData?.logo || avatar} alt="avatar" />
           </button>
 
           {/* Logout Button */}

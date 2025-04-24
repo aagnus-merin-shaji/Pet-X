@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
-import { lostfoundviewallAPI, lostfoundviewuserAPI, lostfoundeditAPI } from "../../services/lostfoundServices";
+import { lostfoundeditAPI, lostfoundviewallAPI, lostfoundviewuserAPI } from "../../services/lostfoundServices";
 import { FaPaw } from "react-icons/fa";
 
 const LostFoundview = () => {

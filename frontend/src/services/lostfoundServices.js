@@ -14,13 +14,16 @@ export const lostaddAPI= async(data)=>{
     return response.data
 }
 
-export const lostfoundeditAPI= async()=>{
-    const response = await axios.put(`${BASE_URL}/lostfound/edit`,data, {
-        headers:{
-            Authorization: `Bearer ${token}`
-        }    // Make sure credentials (cookies) are sent
-    });
-    return response.data
+export const lostfoundeditAPI= async(id)=>{
+    const response = await axios.put(`${BASE_URL}/lostfound/edit`, 
+        { id, status: 'found' },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+    return response.data;
 }
 
 export const lostfoundviewuserAPI= async()=>{
