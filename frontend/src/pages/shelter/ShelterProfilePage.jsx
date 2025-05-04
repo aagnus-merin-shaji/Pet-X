@@ -6,122 +6,129 @@ import { shelteraddAPI, sheltereditAPI } from "../../services/shelterServices";
 import { profilepasswordAPI } from "../../services/userProfileServices";
 import { useNavigate } from "react-router-dom";
 
-
 const ShelterProfilePage = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
   // Fetch shelter data using React Query
   const { data, isLoading, isError } = useQuery({
     queryFn: shelteraddAPI,
     queryKey: ['profile'],
-    staleTime: 300000, // Cache for 5 minutes
-    cacheTime: 3600000, // Keep in cache for 1 hour
+    staleTime: 300000,
+    cacheTime: 3600000,
   });
-    useEffect(() => {
-        if (data) {
-          setVendorData(data);
-        }
-      }, [data]);
-    const navigate =useNavigate()
-   const { mutateAsync:updateProfileMutation, } = useMutation({
-             mutationFn: sheltereditAPI, // Ensure this function is defined in userServices.js
-             mutationKey: ["editprofile"],
-             onSuccess: () => {
-               queryClient.invalidateQueries(['profile']); // Add this line
-               alert('✅ Profile updated successfully!');
-               navigate('/shelterhome');
-             },
-             onError: (error) => {
-               alert('❌ Error updating profile: ' + error.message);
-             },
-           });
-    const { mutateAsync:changePasswordMutation, isPending, } = useMutation({
-        mutationKey: ['change-pswd'],
-        mutationFn: profilepasswordAPI,
-        onSuccess: () => {
-          alert('✅ Password changed successfully!');
-          setIsChangingPassword(false);
-        },
-        onError: () => {
-          alert('❌ Failed to change password. Please try again.');
-        },
-      });
-  // Initialize vendor data with the fetched data or empty defaults
+
+  // Initialize vendor data with proper structure
   const [vendorData, setVendorData] = useState({
-    logo: "",
+    logo: avatar,
     organizationName: "",
-    email: "",
     phone: "",
     address: "",
     missionStatement: "",
     facilityImages: [],
-    username: ""
+    userId: {
+      username: "",
+      email: ""
+    }
   });
-
-  // Add this state near your other state declarations
-  const [isImageLoading, setIsImageLoading] = useState(false);
 
   // Update state when data arrives
   useEffect(() => {
     if (data) {
       setVendorData({
-        ...data,
-        logo: data.logo || avatar, // Make sure logo is properly initialized
-        username: data.userId.username || "",
-        email: data.userId.email || "",
+        logo: data.logo || avatar,
         organizationName: data.organizationName || "",
         phone: data.phone || "",
         address: data.address || "",
         missionStatement: data.missionStatement || "",
         facilityImages: data.facilityImages || [],
+        userId: {
+          username: data.userId?.username || "",
+          email: data.userId?.email || ""
+        }
       });
     }
   }, [data]);
-  console.log(vendorData);
-  // Rest of your existing state and handlers remain the same
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmNewPassword: "",
   });
+
+  const { mutateAsync: updateProfileMutation } = useMutation({
+    mutationFn: sheltereditAPI,
+    mutationKey: ["editprofile"],
+    onSuccess: () => {
+      queryClient.invalidateQueries(['profile']);
+      alert('✅ Profile updated successfully!');
+      navigate('/shelterhome');
+    },
+    onError: (error) => {
+      alert('❌ Error updating profile: ' + error.message);
+    },
+  });
+
+  const { mutateAsync: changePasswordMutation } = useMutation({
+    mutationKey: ['change-pswd'],
+    mutationFn: profilepasswordAPI,
+    onSuccess: () => {
+      alert('✅ Password changed successfully!');
+      setShowChangePassword(false);
+    },
+    onError: () => {
+      alert('❌ Failed to change password. Please try again.');
+    },
+  });
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setVendorData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    
+    // Handle nested userId fields
+    if (name === "username" || name === "email") {
+      setVendorData(prev => ({
+        ...prev,
+        userId: {
+          ...prev.userId,
+          [name]: value
+        }
+      }));
+    } else {
+      setVendorData(prev => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
-    setPasswordData((prevData) => ({
-      ...prevData,
+    setPasswordData(prev => ({
+      ...prev,
       [name]: value,
     }));
   };
 
-  // Update the handleImageChange function
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    
-    // Validate file type
     const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    
     if (!validTypes.includes(file?.type)) {
       alert('❌ Please select a valid image file (JPEG, PNG)');
       return;
     }
-  
-    // Add file size validation
-    const maxSize = 2 * 1024 * 1024; // 2MB
+
+    const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
       alert('❌ Image size should be less than 2MB');
       return;
     }
-  
-    setIsImageLoading(true); // Add loading
-  
-    // Compress image before uploading
+
+    setIsImageLoading(true);
+
     const compressImage = (file) => {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -131,12 +138,11 @@ const ShelterProfilePage = () => {
           img.src = event.target.result;
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            // Reduce maximum dimensions for smaller file size
             const MAX_WIDTH = 400;
             const MAX_HEIGHT = 400;
             let width = img.width;
             let height = img.height;
-  
+
             if (width > height) {
               if (width > MAX_WIDTH) {
                 height *= MAX_WIDTH / width;
@@ -148,34 +154,31 @@ const ShelterProfilePage = () => {
                 height = MAX_HEIGHT;
               }
             }
-  
+
             canvas.width = width;
             canvas.height = height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
-            
-            // Reduce quality further for smaller file size
             const compressedBase64 = canvas.toDataURL(file.type, 0.6);
             resolve(compressedBase64);
           };
         };
       });
     };
-  
+
     if (file) {
       compressImage(file)
         .then(compressedBase64 => {
-          // Update local state
           setVendorData(prev => ({
             ...prev,
             logo: compressedBase64
           }));
-          setIsImageLoading(false); // Remove loading
+          setIsImageLoading(false);
         })
         .catch(error => {
           alert('❌ Error processing image');
           console.error(error);
-          setIsImageLoading(false); // Remove loading
+          setIsImageLoading(false);
         });
     }
   };
@@ -185,13 +188,10 @@ const ShelterProfilePage = () => {
     try {
       const dataToUpdate = {
         ...vendorData,
-        logo: vendorData.logo === avatar ? "" : vendorData.logo // Don't save default avatar
+        logo: vendorData.logo === avatar ? "" : vendorData.logo
       };
       
       await updateProfileMutation(dataToUpdate);
-      
-      // Force a refetch of the profile data
-      queryClient.invalidateQueries(['profile']);
       setIsEditMode(false);
     } catch (error) {
       alert('❌ Error saving profile changes');
@@ -199,20 +199,27 @@ const ShelterProfilePage = () => {
     }
   };
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmNewPassword) {
       alert("New password and confirm password do not match.");
       return;
     }
-    console.log("Password Change Data:", passwordData);
-    alert("Password changed successfully!");
-    setShowChangePassword(false);
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmNewPassword: "",
-    });
+    
+    try {
+      await changePasswordMutation({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
+      
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmNewPassword: "",
+      });
+    } catch (error) {
+      console.error("Password change error:", error);
+    }
   };
 
   if (isLoading) {
@@ -227,29 +234,27 @@ const ShelterProfilePage = () => {
     <ProfileWrapper>
       <div className="profile-container">
         {isEditMode ? (
-          // Edit Mode: Display form
           <form onSubmit={handleSubmit}>
             <div className="profile-header">
               <div className="image-container">
                 <img 
-                  src={vendorData.logo || avatar} 
+                  src={vendorData.logo} 
                   alt="Profile" 
                   className="profile-image"
                 />
-                {isEditMode && (
-                  <div className="image-upload">
-                    <label htmlFor="profile-image-input" className="upload-label">
-                      Change Photo
-                    </label>
-                    <input
-                      id="profile-image-input"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="file-input"
-                    />
-                  </div>
-                )}
+                <div className="image-upload">
+                  <label htmlFor="profile-image-input" className="upload-label">
+                    {isImageLoading ? 'Uploading...' : 'Change Photo'}
+                  </label>
+                  <input
+                    id="profile-image-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="file-input"
+                    disabled={isImageLoading}
+                  />
+                </div>
               </div>
             </div>
             <div className="profile-details">
@@ -258,7 +263,7 @@ const ShelterProfilePage = () => {
                 <input
                   type="text"
                   name="username"
-                  value={vendorData.username}
+                  value={vendorData.userId?.username || ""}
                   onChange={handleInputChange}
                   className="edit-input"
                   disabled
@@ -269,7 +274,7 @@ const ShelterProfilePage = () => {
                 <input
                   type="email"
                   name="email"
-                  value={vendorData.email}
+                  value={vendorData.userId?.email || ""}
                   onChange={handleInputChange}
                   className="edit-input"
                 />
@@ -315,7 +320,7 @@ const ShelterProfilePage = () => {
                 />
               </div>
             </div>
-            <button type="submit" className="save-button">
+            <button type="submit" className="save-button" disabled={isImageLoading}>
               Save Changes
             </button>
             <button
@@ -327,55 +332,40 @@ const ShelterProfilePage = () => {
             </button>
           </form>
         ) : (
-          // View Mode: Display details
           <>
             <div className="profile-header">
               <div className="image-container">
                 <img 
-                  src={vendorData.logo || avatar} 
+                  src={vendorData.logo} 
                   alt="Profile" 
                   className="profile-image"
                 />
-                {isEditMode && (
-                  <div className="image-upload">
-                    <label htmlFor="profile-image-input" className="upload-label">
-                      Change Photo
-                    </label>
-                    <input
-                      id="profile-image-input"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="file-input"
-                    />
-                  </div>
-                )}
               </div>
             </div>
             <div className="profile-details">
               <div className="detail-item">
                 <label>Username</label>
-                <p>{vendorData.username}</p>
+                <p>{vendorData.userId?.username || "Not available"}</p>
               </div>
               <div className="detail-item">
                 <label>Email</label>
-                <p>{vendorData.email}</p>
+                <p>{vendorData.userId?.email || "Not available"}</p>
               </div>
               <div className="detail-item">
-                <label>OrganizationName</label>
-                <p>{vendorData.organizationName}</p>
+                <label>Organization Name</label>
+                <p>{vendorData.organizationName || "Not available"}</p>
               </div>
               <div className="detail-item">
                 <label>Phone</label>
-                <p>{vendorData.phone}</p>
+                <p>{vendorData.phone || "Not available"}</p>
               </div>
               <div className="detail-item">
                 <label>Address</label>
-                <p>{vendorData.address}</p>
+                <p>{vendorData.address || "Not available"}</p>
               </div>
               <div className="detail-item">
                 <label>Mission Statement</label>
-                <p>{vendorData.missionStatement}</p>
+                <p>{vendorData.missionStatement || "Not available"}</p>
               </div>
             </div>
             <button
@@ -393,7 +383,6 @@ const ShelterProfilePage = () => {
           </>
         )}
 
-        {/* Change Password Form */}
         {showChangePassword && (
           <div className="change-password-form">
             <h3>Change Password</h3>
@@ -449,7 +438,7 @@ const ShelterProfilePage = () => {
   );
 };
 
-// Your styled components remain exactly the same
+// Styled components remain exactly the same as in your original code
 const ProfileWrapper = styled.div`
   display: flex;
   justify-content: center;
